@@ -1,0 +1,25 @@
+ &OFFLINE_PARM01
+  UvelFile= '*Your_path_to_Input*ECCO_Iter3.73daily/DDuvel/DDuvel',
+  VvelFile= '*Your_path_to_Input*ECCO_Iter3.73daily/DDvvel/DDvvel',
+  WvelFile= '*Your_path_to_Input*ECCO_Iter3.73daily/DDwvel/DDwvel',
+  GMwxFile= '*Your_path_to_Input*ECCO_Iter3.73daily/DGMkwx/DGMkwx',
+  GMwyFile= '*Your_path_to_Input*ECCO_Iter3.73daily/DGMkwy/DGMkwy',
+  GMwzFile= '*Your_path_to_Input*ECCO_Iter3.73daily/DGMkwz/DGMkwz',
+# ConvFile= 'input_off/Convtave',
+  SaltFile= '*Your_path_to_Input*ECCO_Iter3.73daily/DDsalt/DDsalt',
+  ThetFile= '*Your_path_to_Input*ECCO_Iter3.73daily/DDtheta/DDtheta',
+  SFluxFile='*Your_path_to_Input*ECCO_Iter3.73daily/DFOSflux/DFOSflux',
+# HFluxFile=' ',
+  KPP_DiffSFile='*Your_path_to_Input*ECCO_Iter3.73daily/DKPPdiffs/DKPPdiffs',
+  KPP_ghatKFile='*Your_path_to_Input*ECCO_Iter3.73daily/DKPPghatK/DKPPghatK',
+### offGen2DFile='/nfs/micklab001/stephdut/ECCO_Iter3.73daily/SIarea/SIarea',
+ &end
+
+ &OFFLINE_PARM02
+  offlineIter0=78912, 
+  deltaToffline=3600.,
+  offlineForcingPeriod=86400.,
+  offlineForcingCycle=31104000.,
+  offlineLoadPrec=32,
+ &end
+
