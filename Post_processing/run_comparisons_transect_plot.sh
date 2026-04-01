@@ -2,9 +2,7 @@
 types="mol ind"
 scales="0 log10"
 
-#refs="virus no_virus no_virus_shunt virus_shunt no_virus_shunt_all virus_shunt_all no_virus_misc virus_misc"
-#refs="no_virus_shunt_all"
-refs="no_virus"
+refs="no_virus_shunt"
 
 for t in $types;
 do
