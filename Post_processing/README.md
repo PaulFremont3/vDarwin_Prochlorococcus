@@ -17,3 +17,5 @@ For each simulations, run the post processing that will save outputs as `.rds` f
 ## 3. Run transect comparisons: script `comparisons_transect.R`
 - run transects comparisons: `./run_comparisons_transect_save.sh` => this will run and save (as `.rds` files) all model comparisons necessary for figure generation (maximum run time should be around 5 minutes). If plotting is necessary again, use `./run_comparisons_transect_plot.sh` to only run plotting (20 seconds maximum run time)
 
+## 4. Figure data
+
