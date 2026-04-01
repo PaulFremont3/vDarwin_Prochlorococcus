@@ -1,6 +1,7 @@
 This folder contains subfolders necessary to run all simulations of the manuscript, including model parameterization files, the executable (same `mitgcmuv_1` file, placed in each folder) and the `.sbatch` file to launch the simulation on a HPC.
 
-To follow the steps in this folder you must have downloaded and compiled vDarwin (folder `run/`)
+To follow the steps in this folder you must have downloaded and compiled vDarwin (folder `run/`)  
+  
 dependencies: 
 
 gcc/8.4.0 (including gfortran/8.4.0)  
