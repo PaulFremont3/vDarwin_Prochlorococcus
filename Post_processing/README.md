@@ -8,5 +8,5 @@ For each simulations, run the post processing that will save outputs as `.rds` f
 - change to the correct date of your simulation in each line in the file `run_post_process.sh`
 - run: `./run_post_process.sh`, each post processing should take around 1 hour
 
-## 2. Run global scale maps model comparisons
+## 2. Run global scale maps model comparisons: script `comparisons_3D_analysis.R`
 
