@@ -7,7 +7,10 @@ This step is possible only if you ran simulations beforehand (follow steps in fo
 For each simulations, run the post processing that will save outputs as `.rds` files (convenient for R): 
 - change to the correct date of your simulation in each line in the file `run_post_process.sh`
 - run: `./run_post_process.sh`, each post processing should take around 1 hour
-- outputs: `data_3D_darwin_10th_year_*suffix*.rds` where *suffix* is in 
+- outputs:
+  - `data_3D_darwin_10th_year_*suffix*.rds` where *suffix* is in (no_virus, virus_shunt-100, virus_shunt-90, virus_shunt-75, virus_shunt-60, virus_shunt-50, virus_shunt-25, virus_shunt-0, virus_shunt-100_no_I, virus_shunt-100_no_DON_transport, virus_shunt-100_I_growth) => this stores the data
+  - `3D_darwin_maps_*suffix*.pdf`: maps of each tracers for each simulation
 
 ## 2. Run global scale maps model comparisons: script `comparisons_3D_analysis.R`
+- run all comparisons: `./run_comparisons_save.sh` => this will run all model comparisons necessary for figure generation
 
