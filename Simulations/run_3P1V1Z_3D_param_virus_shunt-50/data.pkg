@@ -1,0 +1,14 @@
+# Packages
+ &PACKAGES
+ useGMRedi=.TRUE.
+ usePTRACERS=.TRUE.
+ useGCHEM=.TRUE.,
+ useRADTRANS=.TRUE.,
+ useKPP=.TRUE.,
+ useDiagnostics = .TRUE.,
+ useMNC=.FALSE.,
+ useEXF=.TRUE.,
+ useCAL=.TRUE.,
+ useOFFLINE=.TRUE.,
+ useDIAGNOSTICS=.TRUE.,
+ /
