@@ -16,4 +16,5 @@ Subfolders `Simulations/` and `Post_processing/` contains a `README.md` that:
 
 The tutorial is written so that all the study is done in the folder `run/` (you will move folders `Simulations/` and `Post_processing/` inside this folder at some point, see `README.md` in `run/`).
 
-Note: The code generates additional outputs beyond those presented in the paper.
+Note 1: The code generates from `Post_processing/` additional outputs beyond those presented in the paper.
+Note 2: The steps from each folder can be performed independently except the `Post_processing/3D_darwin_post_process.R` step that post process raw model outputs in R. For this step, you will have to run simulations (follow steps in `run/` then `Simulations/` folders. For following steps in  `Post_processing/`, required data to visualize model outputs are provided
