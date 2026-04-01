@@ -1,0 +1,15 @@
+#!/bin/bash
+sbatch run_3D_darwin_post_process.sbatch run_3P1V1Z_3D_param_virus_shunt-100 20260129 virus_shunt-100
+sbatch run_3D_darwin_post_process.sbatch run_3P1V1Z_3D_param_virus_shunt-90 20260129 virus_shunt-90
+sbatch run_3D_darwin_post_process.sbatch run_3P1V1Z_3D_param_virus_shunt-75 20260129 virus_shunt-75
+sbatch run_3D_darwin_post_process.sbatch run_3P1V1Z_3D_param_virus_shunt-60 20260129 virus_shunt-60
+sbatch run_3D_darwin_post_process.sbatch run_3P1V1Z_3D_param_virus_shunt-50 20260129 virus_shunt-50
+sbatch run_3D_darwin_post_process.sbatch run_3P1V1Z_3D_param_virus_shunt-25 20260129 virus_shunt-25
+sbatch run_3D_darwin_post_process.sbatch run_3P1V1Z_3D_param_virus_shunt-0 20260129 virus_shunt-0
+
+sbatch run_3D_darwin_post_process.sbatch run_3P1V1Z_3D_param_no_virus 20260129 no_virus
+
+sbatch run_3D_darwin_post_process.sbatch run_3P1V1Z_3D_param_virus_shunt-100_no_I 20260203 virus_shunt-100_no_I
+sbatch run_3D_darwin_post_process.sbatch run_3P1V1Z_3D_param_virus_shunt-100_I_growth 20260130 virus_shunt-100_I_growth
+
+sbatch run_3D_darwin_post_process.sbatch run_3P1V1Z_3D_param_virus_shunt-100_no_DON_transport 20260130 virus_shunt-100_no_DON_transport
