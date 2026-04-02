@@ -1067,7 +1067,7 @@ for (n in names_tracers[var_to_plot]){
 		
 		if (n %in% c('%Zmort', '%Omort', '%Vmort') & sca=='0'){
 			template_map(min_lo, max_lo, min_lt, max_lt)
-                	image(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], delta,add = TRUE, useRaster = TRUE, col = colos, zlim = c(-30, 30), main=paste('delta ', n, sep=''))
+                	image(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], delta,add = TRUE, useRaster = TRUE, col = colos, zlim = c(-26, 26), main=paste('delta ', n, sep=''))
                 	axis_map(min_lo, max_lo, min_lt, max_lt, step_lo, step_lt)
                 	contour(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], delta_cont, levels=c(0,1), add=T, labels=0, lwd=2)
 		}
@@ -1099,6 +1099,18 @@ for (n in names_tracers[var_to_plot]){
 	          points(d$x, cdf*y_max_buffered, type='l', lwd=9, col='#ff00ff')
 		  axis(4, at=c(0,y_max_buffered), labels=c(0,1))	
 		  })  
+		   if (n %in% c('%Zmort', '%Omort', '%Vmort') & sca=='0'){
+                    local({
+                    old_par <- par(no.readonly = TRUE)
+                    on.exit(par(old_par))
+                    par(mar = c(5.1, 4.1, 17.5, 2.1))
+                    plot(d, lwd = 2,xlab = "",ylab = "", xlim=c(-26, 26), xaxs = "i", yaxs="i", ylim=c(0, y_max_buffered))
+                    polygon(d, col = adjustcolor("grey", alpha.f = 0.6), border = NA)
+                    cdf=cumsum(d$y)/sum(d$y)
+                    points(d$x, cdf*y_max_buffered, type='l', lwd=9, col='#ff00ff')
+                    axis(4, at=c(0,y_max_buffered), labels=c(0,1))
+            })
+
 		}
 
 	}
