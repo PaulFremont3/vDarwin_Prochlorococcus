@@ -40,7 +40,10 @@ For each simulations, run the post processing that will save outputs as `.rds` f
   - `*name*_darwin_maps_comparisons_delta_*sca*_*type*_ref-*ref_sim*.pdf'`: pdfs of comparisons of model to the reference/control simulation (% change or log-ratios)
 ## 4. Figure panels
 - Figure 1
+  - Figure 1a: run `Rscript template_map.R`, output is `template_map.pdf`, used for figure 1a. Currents and the rest of the figure were done manually in Inkscape
 - Figure 2
+  - Figure 2a,b,c,d,e,g,h: pages 6,5,19,27,26,76,75 of `3D_darwin_maps_comparisons_bis_0_mol_ref-no_virus.pdf`
+  - Figure 2f,i: page 10 and 7 of `3D_darwin_maps_virus_shunt-100.pdf`
 - Figure 3
 - Figure 4
 - Figure 5
