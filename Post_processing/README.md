@@ -40,15 +40,25 @@ For each simulations, run the post processing that will save outputs as `.rds` f
   - `*name*_darwin_maps_comparisons_delta_*sca*_*type*_ref-*ref_sim*.pdf'`: pdfs of comparisons of model to the reference/control simulation (% change or log-ratios)
 ## 4. Figure panels
 - Figure 1
-  - Figure 1a: run `Rscript template_map.R`, output is `template_map.pdf`, used for figure 1a. Currents and the rest of the figure were done manually in Inkscape
+  - 1a: run `Rscript template_map.R`, output is `template_map.pdf`, used for figure 1a. Currents and the rest of the figure were done manually in Inkscape
 - Figure 2
-  - Figure 2a,b,c,d,e,g,h: pages 6,5,19,27,26,76,75 of `3D_darwin_maps_comparisons_bis_0_mol_ref-no_virus.pdf`
-  - Figure 2f,i: page 10 and 7 of `3D_darwin_maps_virus_shunt-100.pdf`
+  - 2a,b,c,d,e,g,h: pages 6,5,19,27,26,76,75 of `3D_darwin_maps_comparisons_bis_0_mol_ref-no_virus.pdf`
+  - 2f,i: pages 10 and 7 of `3D_darwin_maps_virus_shunt-100.pdf`
 - Figure 3
+  - 3a-f: pages 14, 8, 2, 46, 40 and 34 of `3D_darwin_maps_comparisons_deltas_bis_log10_mol_ref-no_virus_shunt.pdf`
 - Figure 4
+  - 4a and b: pages 5 and 8 of `npp_plot_stats_no_virus_shunt_all.pdf`
+  - 4c-h: pages 130, 124, 121, 118, 115 and 112 of `3D_darwin_maps_comparisons_deltas_bis_log10_mol_ref-no_virus_shunt_all.pdf`
 - Figure 5
+  - 5a-i: pages 126, 120, 114, 302, 296, 290, 158, 152 and 146 of `3D_darwin_maps_comparisons_deltas_bis_log10_mol_ref-no_virus_shunt.pdf`
 - Figure 6
+  - 6a: page 65 of `3D_darwin_maps_no_virus.pdf`
+  - 6b,d,f: page 11, 7, 1 of `3D_darwin_maps_comparisons_oligotrophic_regions_trop_0_ind_ref-no_virus_shunt.pdf`
+  - 6c,e: page 190 and 178 of `3D_darwin_maps_comparisons_deltas_bis_log10_ind_ref-no_virus_shunt.pdf`
+  - 6g,h: page 19 and 22 of `3D_darwin_maps_comparisons_oligotrophic_regions_trop_0_ind_ref-no_virus_shunt_all.pdf`
 - Figure 7
+  - 7a: page 1 of `transect_position_oligotrophic_lat_transect.pdf`
+  - 7b,c,d: 
 - Figure S1
 - Figure S2
 - Figure S3
@@ -58,4 +68,7 @@ For each simulations, run the post processing that will save outputs as `.rds` f
 - Figure S7
 - Figure S8
 - Figure S9
+
+Note 1: color legends gradients are available after maps of all simualtions for all tracers
+Note 2: for log-ratios, CDF and PDF plots are availbale in the next page of the given map
 
