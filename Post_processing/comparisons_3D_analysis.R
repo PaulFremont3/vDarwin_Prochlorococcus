@@ -7,12 +7,14 @@ library('maps')
 library('pals')
 source('functions_map.R')
 
-sca=commandArgs(trailingOnly=T)[1]
-type=commandArgs(trailingOnly=T)[2]
-depth=commandArgs(trailingOnly=T)[3]
-region=commandArgs(trailingOnly=T)[4]
-ref_sim=commandArgs(trailingOnly=T)[5]
-save=commandArgs(trailingOnly=T)[6]
+sca=commandArgs(trailingOnly=T)[1] # scale: linear (sca=0) or log10 (sca=log10)
+type=commandArgs(trailingOnly=T)[2] # unit: ind.L-1 (type='ind') or mmol.m^-3 (type='mol')
+depth=commandArgs(trailingOnly=T)[3] # int = mean over 100 m or the depth level you want to visualize
+region=commandArgs(trailingOnly=T)[4] # world, aloha or gradients
+ref_sim=commandArgs(trailingOnly=T)[5] # code name for the list of simualtions to be included in the analysis 
+save=commandArgs(trailingOnly=T)[6] # save mode (save=1) or plot mode (save=0) => save=1 must be run first (saves the data and takes a while, up to 2 hours) then if some chanegs to plot are necessary, run save=0 (plot mode, runs faster)
+
+# grid
 lon=readRDS('lon.rds')
 lat=readRDS('lat.rds')
 
@@ -23,7 +25,7 @@ print(region)
 print(ref_sim)
 print(save)
 
-
+# region limits
 if (region=='world'){
 	min_lo=-20
 	max_lo=360
@@ -41,11 +43,11 @@ if (region=='world'){
 	nc=160
 } else if (region=='gradients'){
 	min_lo=180
-        max_lo=220
-        min_lt=20
-        max_lt=50
-        step_lo=10
-        step_lt=10
+    max_lo=220
+    min_lt=20
+    max_lt=50
+    step_lo=10
+    step_lt=10
 	i1_lo=181
 	i2_lo=220
 	i1_lt=80+21
@@ -53,30 +55,33 @@ if (region=='world'){
 	wd=7
 	hg=7
 	nr=40
-        nc=40
+    nc=40
 } else if (region=='aloha'){
-        min_lo=190
-        max_lo=210
-        min_lt=15
-        max_lt=35
-        step_lo=5
-        step_lt=5
+    min_lo=190
+    max_lo=210
+    min_lt=15
+    max_lt=35
+    step_lo=5
+    step_lt=5
 	i1_lo=191
 	i2_lo=210
 	i1_lt=80+16
 	i2_lt=80+35
 	wd=7
-        hg=7
+    hg=7
 	nr=20
 	nc=20
 }
 
+# longitude and latitude grid matrices
 lon_mat <- t(matrix(rep(lon, each = length(lat)), nrow = length(lat)))
 lat_mat <- t(matrix(rep(lat, times = length(lon)), nrow = length(lat)))
 
+# vectors
 lon_vec=as.vector(lon_mat)
 lat_vec=as.vector(lat_mat)
 
+# select depth
 depths=readRDS('depths.rds')
 if (depth!='int'){
 	depth=as.integer(depth)
@@ -85,13 +90,13 @@ if (depth!='int'){
 	de=0
 }
 
-#dzs <- diff(c(0, (head(depths, -1) + tail(depths, -1)) / 2, max(depths) + (depths[length(depths)] - depths[length(depths)-1]) / 2))
-#dzs=abs(dzs)
+# depths
 depths_u=readRDS('depths_u.rds')
 depths_l=readRDS('depths_l.rds')
 dzs=depths_l-depths_u
 dzs=as.numeric(dzs)
 
+# depending on ref_sim, list of simulation to be included (the last simulation of suffixes is the reference/control simulation for log10 ratios maps)
 if (ref_sim=='no_virus'){
 	suffixes=c('virus_shunt-50','virus_shunt-60' ,'virus_shunt-75', 'virus_shunt-90', 'virus_shunt-100', 'no_virus')
 	suffixes_bis=c('V50','V60' ,'V75', 'V90', 'V100', 'NV')
@@ -133,25 +138,26 @@ if (ref_sim=='no_virus'){
         suffixes_bis=c('V50', 'V60','V75','V90' ,'V100','NV')
 }
 
-
+# tracers
 names_tracers=c('Total_P','Susceptible', 'Infected','Resistant',  'Zooplankton',  'Virus', '%Inf', '%Vmort', "%Zmort", '%Omort', 
 		'GR_S', 'NPP', 'DIC', 'NO3', 'NO2', 'NH4', 'PO4', 'FeT', 'SiO2', 'DOC', 'DON', 'DOP', 'DOFe', 'POC', 
 		'PON', 'POP', 'POFe', 'POSi', 'PIC', 'Alk', 'O2', 'CDOM', 'log10_DON_NO3', 'log10_DON_DIN','VL', 'GR_I', 'TDN', 'chl', 'C/chl', 'Mort_S', 'Mort_I', 'Mort', 'LR_Z', 'LR_V', 'LR_O', 'GR', 'DIN')
 
-
+# 
 if (grepl('no_virus', ref_sim)){
   	ns=length(suffixes)
 } else{
 	ns=length(suffixes)-1
 }
 
+# quotas and quotas list
 Qvs=rep(4.18214600e-15*1000,length(suffixes))
 Qps=rep(4.04125e-12, length(suffixes))*1000
 Qzs=rep(1.06e-09, length(suffixes))*1000
 
 
 Qs=rep(list(rep(list(NULL), length(names_tracers))), length(suffixes))
-
+# read data in save mode
 if (save==1){
 	datas=rep(list(NULL), length(suffixes))
 	names(datas)=suffixes
@@ -170,6 +176,7 @@ if (save==1){
 		}
 		co=co+1
 	}
+# only quotas in plot mode
 } else{
   co=1
   for (suff in suffixes){
@@ -186,7 +193,7 @@ if (save==1){
   }
 }
 
-
+#star function (for region='aloha')
 star <- function(x=0, y=0, r=1, col="red", n=5){
   angles <- seq(0, 2*pi, length.out = 2*n + 1)
   radii <- rep(c(r, r/2), n+1)
@@ -197,7 +204,7 @@ star <- function(x=0, y=0, r=1, col="red", n=5){
   polygon(xs, ys, col=col, border="black", lwd=2)
 }
 
-
+# list to store data
 data_to_plot=rep(list(rep(list(NULL), length(names_tracers))), length(suffixes))
 mins=rep(list(NULL), length(names_tracers))
 maxs=rep(list(NULL), length(names_tracers))
@@ -208,7 +215,9 @@ for (suff in suffixes){
         names(data_to_plot[[suff]])=names_tracers
 }
 
+# variables that are plotted in log10 scales (when sca='log10')
 log10_vars=c('Total_P','Susceptible', 'Infected','Resistant',  'Zooplankton',  'Virus', 'NPP', 'GR_S', 'GR_I', 'VL', 'TDN', 'Mort_S', 'Mort_I', 'Mort', 'LR_Z', 'LR_V', 'LR_O', 'GR', 'DIN', 'chl', 'NO3')
+# compute time and depth average in save mode
 if (save=='1'){
   for (n in names_tracers){
 	  print(n)
@@ -229,12 +238,11 @@ if (save=='1'){
 		  } else{
 			  if (n=='NPP'){
 				  t1=NPP
-                          } else{
+              } else{
 				  t1=apply(t1[,,1:6,1:12], c(1,2, 4), function(x) {sum((x[!is.na(x)] * dzs[1:6][!is.na(x)])/sum(dzs[1:6][!is.na(x)]))}) # depth weighted average
-        			  t1=apply(t1, c(1,2), function(x) {mean(x, na.rm = TRUE)}) # average across the year
-        			  t1[is.na(NPP)]=NA
-  
-                          }
+        		  t1=apply(t1, c(1,2), function(x) {mean(x, na.rm = TRUE)}) # average across the year
+        		  t1[is.na(NPP)]=NA
+              }
 		  }
 		  data_to_plot[[suff]][[n]]=t1
 			
@@ -250,6 +258,7 @@ if (save=='1'){
 		  maxs[[n]]=c(maxs[[n]], mx)
 	  }
   }
+  # saves the data in save mode
   for (suff in suffixes){
     if (depth=='int' & region=='world'){
   	  saveRDS(data_to_plot[[suff]], paste('data_3D_darwin_10th_year_average_',sca, '_', type,'_', suff, '.rds', sep=''))
@@ -259,7 +268,9 @@ if (save=='1'){
 	  saveRDS(data_to_plot[[suff]], paste('data_3D_darwin_10th_year_average_depth-',de,'_',region,'_',sca, '_', type,'_', suff, '.rds', sep=''))
     }
   }
+  # saves mins and maxs (across compared simualtions in save mode)
   saveRDS(list(mins, maxs), paste('mins_maxs_depth-' ,de,'_',region,'_',sca, '_', type,'_', ref_sim, '.rds', sep=''))
+# read the pre saved data in plot mode
 } else {
   for (suff in suffixes){
 	if (depth=='int' & region=='world'){
@@ -278,6 +289,7 @@ if (save=='1'){
 }
 
 
+# latitude vs mortality plot
 cols=c('navyblue', "chocolate", 'sandybrown', 'grey')
 if (ref_sim=='no_virus' & type=='mol' & region=='world'){
   pdf('latitude_vs_mortality.pdf', width = wd, height = hg)
@@ -287,6 +299,7 @@ if (ref_sim=='no_virus' & type=='mol' & region=='world'){
 		  suff_bis=suffixes_bis[count]
 	  	  morts=as.vector(data_to_plot[[suff]][[n]])
 		  chl=as.vector(data_to_plot[[suff]][['chl']])
+		  # discriminate between olig and hyper olig regions
 		  olig=chl<0.1 & chl>0.05
 		  hyp_olig=chl<0.05 & chl>0
 		  sel=!is.na(morts)
@@ -294,7 +307,6 @@ if (ref_sim=='no_virus' & type=='mol' & region=='world'){
 		  classes[olig==T]=2
 		  classes[hyp_olig==T]=3
 		  classes[abs(lat_vec)>40]=4
-		  #par(lwd = 2, las = 1)
 		  par(mar = c(5, 5.2, 2, 2))
 		  if (n %in% c('%Omort', '%Zmort', '%Vmort')){
 		  	ylims=c(0, 100)
@@ -311,6 +323,7 @@ if (ref_sim=='no_virus' & type=='mol' & region=='world'){
 	  }
   }
   dev.off()
+  # latitude vs delta mortality plot
   pdf('latitude_vs_delta_mortality.pdf', width = wd, height = hg)
   count=1
   for (suff in suffixes[1:(length(suffixes)-1)]){
@@ -339,10 +352,8 @@ if (ref_sim=='no_virus' & type=='mol' & region=='world'){
 }
 
 
-
+# plotting data on the same scale across compared simulations
 par(mar=c(5.1, 4.1, 4.1, 2.1))
-
-
 if (depth=='int'){
 	if (region=='world'){
 		pdf(paste('3D_darwin_maps_comparisons_bis_',sca,'_',type,'_ref-',ref_sim,'.pdf', sep=''), width = wd, height = hg)
@@ -357,11 +368,12 @@ if (depth=='int'){
 	}	
 }
 for (n in names_tracers[ c(1:3, 5:12, 14, 21, 33:47)]){
+	# maxs and mins across simulation and color palettes
 	mi=min(mins[[n]][mins[[n]]!=-Inf & mins[[n]]!=Inf], na.rm=T)
 	mx=max(maxs[[n]], na.rm=T)
 	if (n %in% c('%Inf', '%Vmort','%Zmort',  '%Omort' )){
       		zlim=c(0,100)
-		zlim1=c(0, mx)
+		    zlim1=c(0, mx)
       		colos=hcl.colors(100, palette = "Spectral", rev=T)
       		lab=t
     	} else{
@@ -404,7 +416,7 @@ for (n in names_tracers[ c(1:3, 5:12, 14, 21, 33:47)]){
                 }
 
     	}
-
+    # plot maps
 	for (suff in suffixes){
 		if (sca=='log10' & n %in% log10_vars){
 			t=log10(data_to_plot[[suff]][[n]])
@@ -446,7 +458,8 @@ for (n in names_tracers[ c(1:3, 5:12, 14, 21, 33:47)]){
 			points(rep(lon_g_ind,length(lats_g_ind)) ,lats_g , pch=19, type='l', lwd=3)
 		}
 	}
-	
+
+	# plot legend
 	# 1️⃣ Determine limits
 	t1_max <- mx
     	if  (sca=='log10' & n %in% log10_vars | n %in% c('log10_DON_NO3', 'log10_DON_DIN')){
@@ -504,12 +517,11 @@ for (n in names_tracers[ c(1:3, 5:12, 14, 21, 33:47)]){
 		# add labels
 		text(x = legend_x + 14, y = ticks_pos,labels = labs, adj = 0)
 	}
-	#make_ticks(mins[[n]],  suffixes_bis, colos)
 	make_ticks(maxs[[n]],  suffixes_bis, colos,n, t1_min, t1_max)
 }
 dev.off()
 
-
+# correlation between percent infected and mortality 
 if (sca=='0' & type=='mol' & region=='world'){
   if (depth!='int'){
   	  pdf(paste('3D_darwin_comparisons_correlations_PI_bis_depth',de,'_ref-',ref_sim,'.pdf', sep=''))
@@ -565,6 +577,8 @@ if (sca=='0' & type=='mol' & region=='world'){
           box(lwd = 3)
   }
   dev.off()
+
+# correlation plots between different types of mortality (z, v and s) + mortality measures (%, rate and fluxes)
   if (depth!='int'){
           pdf(paste('3D_darwin_comparisons_correlations_bis_depth',de,'_ref-',ref_sim,'.pdf', sep=''))
   } else{
@@ -572,8 +586,8 @@ if (sca=='0' & type=='mol' & region=='world'){
   }
   par(mar=c(5.1, 5.1, 4.1, 0.1))
   for (suff in suffixes[1:ns]){
-          pzmort=as.vector(data_to_plot[[suff]][['%Zmort']])
-          pvmort=as.vector(data_to_plot[[suff]][['%Vmort']])
+      pzmort=as.vector(data_to_plot[[suff]][['%Zmort']])
+      pvmort=as.vector(data_to_plot[[suff]][['%Vmort']])
 	  GR=as.vector(data_to_plot[[suff]][['GR']])
 	  VL=as.vector(data_to_plot[[suff]][['VL']])
 	  LR_Z=as.vector(data_to_plot[[suff]][['LR_Z']])
@@ -581,9 +595,9 @@ if (sca=='0' & type=='mol' & region=='world'){
 	  
 	  chl=as.vector(data_to_plot[[suff]][['chl']])
         
-          sel=!is.na(pzmort) & !is.na(pvmort)
-          pzmort=pzmort[sel]
-          pvmort=pvmort[sel]
+      sel=!is.na(pzmort) & !is.na(pvmort)
+      pzmort=pzmort[sel]
+      pvmort=pvmort[sel]
 	  GR=GR[sel]
 	  VL=VL[sel]
 	  LR_Z=LR_Z[sel]
@@ -595,139 +609,140 @@ if (sca=='0' & type=='mol' & region=='world'){
 	  hyp_olig=chl<0.05 & chl>0
 
 	  classes=rep(1,length(chl))
-          classes[olig==T]=2
+      classes[olig==T]=2
 	  classes[hyp_olig==T]=3
 	  classes[abs(lat_vec)>40]=4
-          co=cor.test(pzmort, pvmort)
+      co=cor.test(pzmort, pvmort)
 	  plot(pzmort, pvmort,  main=paste(suff,'\n','cor=',signif(co$estimate, 2), ' p.value=',signif(co$p.value,2) ,sep=''), pch=19, xaxt='n', yaxt="n", col=cols[classes], xlab='', ylab='')
 	  axis(1,  lwd = 0, lwd.ticks = 3, las = 1, cex.axis=2, mgp = c(3, 1.2, 0))
-          axis(2, lwd = 0, lwd.ticks = 3, las = 1, cex.axis=2)
-          box(lwd = 3)
-          lines(c(0,100), c(0,100), lwd=2)
+      axis(2, lwd = 0, lwd.ticks = 3, las = 1, cex.axis=2)
+      box(lwd = 3)
+      lines(c(0,100), c(0,100), lwd=2)
 	  mtext('% Z mort', side = 1, line = 3.5, cex = 1.6)
 	  
 	  co=cor.test(GR,VL)
 	  plot(GR, VL,  main=paste(suff,'\n','cor=',signif(co$estimate, 2), ' p.value=',signif(co$p.value,2) ,sep=''), pch=19, xaxt='n', yaxt="n", col=cols[classes], xlab='', ylab='')
-          axis(1,  lwd = 0, lwd.ticks = 3, las = 1, cex.axis=2, mgp = c(3, 1.2, 0))
-          axis(2, lwd = 0, lwd.ticks = 3, las = 1, cex.axis=2)
-          box(lwd = 3)
+      axis(1,  lwd = 0, lwd.ticks = 3, las = 1, cex.axis=2, mgp = c(3, 1.2, 0))
+      axis(2, lwd = 0, lwd.ticks = 3, las = 1, cex.axis=2)
+      box(lwd = 3)
 	  lines(c(0,100), c(0,100), lwd=2)
-          mtext('Z loss', side = 1, line = 3.5, cex = 1.6)
+      mtext('Z loss', side = 1, line = 3.5, cex = 1.6)
 
 
 	  co=cor.test(LR_Z,LR_V)
-          plot(LR_Z, LR_V,  main=paste(suff,'\n','cor=',signif(co$estimate, 2), ' p.value=',signif(co$p.value,2) ,sep=''), pch=19, xaxt='n', yaxt="n", col=cols[classes], xlab='', ylab='')
-          axis(1,  lwd = 0, lwd.ticks = 3, las = 1, cex.axis=2, mgp = c(3, 1.2, 0))
-          axis(2, lwd = 0, lwd.ticks = 3, las = 1, cex.axis=2)
-          box(lwd = 3)
+      plot(LR_Z, LR_V,  main=paste(suff,'\n','cor=',signif(co$estimate, 2), ' p.value=',signif(co$p.value,2) ,sep=''), pch=19, xaxt='n', yaxt="n", col=cols[classes], xlab='', ylab='')
+      axis(1,  lwd = 0, lwd.ticks = 3, las = 1, cex.axis=2, mgp = c(3, 1.2, 0))
+      axis(2, lwd = 0, lwd.ticks = 3, las = 1, cex.axis=2)
+      box(lwd = 3)
 	  lines(c(0,100), c(0,100), lwd=2)
-          mtext('Z loss rate', side = 1, line = 3.5, cex = 1.6)
+      mtext('Z loss rate', side = 1, line = 3.5, cex = 1.6)
 
 	  sel1=classes==1 | classes==4
 	  co=cor.test(pzmort[sel1], pvmort[sel1])
-          plot(pzmort[sel1], pvmort[sel1],  main=paste(suff,'\n','cor=',signif(co$estimate, 2), ' p.value=',signif(co$p.value,2) ,sep=''), pch=19, xaxt='n', yaxt="n", col=cols[classes[sel1]], xlab='', ylab='')
+      plot(pzmort[sel1], pvmort[sel1],  main=paste(suff,'\n','cor=',signif(co$estimate, 2), ' p.value=',signif(co$p.value,2) ,sep=''), pch=19, xaxt='n', yaxt="n", col=cols[classes[sel1]], xlab='', ylab='')
 	  axis(1,  lwd = 0, lwd.ticks = 3, las = 1, cex.axis=2, mgp = c(3, 1.2, 0))
-          axis(2, lwd = 0, lwd.ticks = 3, las = 1, cex.axis=2)
-          box(lwd = 3)
+      axis(2, lwd = 0, lwd.ticks = 3, las = 1, cex.axis=2)
+      box(lwd = 3)
 	  lines(c(0,100), c(0,100), lwd=2)
-          mtext('% Z mort', side = 1, line = 3.5, cex = 1.6)
+      mtext('% Z mort', side = 1, line = 3.5, cex = 1.6)
 
 	  co=cor.test(GR[sel1], VL[sel1])
 	  plot(GR[sel1], VL[sel1],  main=paste(suff,'\n','cor=',signif(co$estimate, 2), ' p.value=',signif(co$p.value,2) ,sep=''), pch=19, xaxt='n', yaxt="n", col=cols[classes[sel1]], xlab='', ylab='')
-          axis(1,  lwd = 0, lwd.ticks = 3, las = 1, cex.axis=2, mgp = c(3, 1.2, 0))
-          axis(2, lwd = 0, lwd.ticks = 3, las = 1, cex.axis=2)
-          box(lwd = 3)
+      axis(1,  lwd = 0, lwd.ticks = 3, las = 1, cex.axis=2, mgp = c(3, 1.2, 0))
+      axis(2, lwd = 0, lwd.ticks = 3, las = 1, cex.axis=2)
+      box(lwd = 3)
 	  lines(c(0,100), c(0,100), lwd=2)
-          mtext('Z loss', side = 1, line = 3.5, cex = 1.6)
+      mtext('Z loss', side = 1, line = 3.5, cex = 1.6)
 
 	  co=cor.test(LR_Z[sel1], LR_V[sel1])
-          plot(LR_Z[sel1], LR_V[sel1],  main=paste(suff,'\n','cor=',signif(co$estimate, 2), ' p.value=',signif(co$p.value,2) ,sep=''), pch=19, xaxt='n', yaxt="n", col=cols[classes[sel1]], xlab='', ylab='')
-          axis(1,  lwd = 0, lwd.ticks = 3, las = 1, cex.axis=2, mgp = c(3, 1.2, 0))
-          axis(2, lwd = 0, lwd.ticks = 3, las = 1, cex.axis=2)
-          box(lwd = 3)
+      plot(LR_Z[sel1], LR_V[sel1],  main=paste(suff,'\n','cor=',signif(co$estimate, 2), ' p.value=',signif(co$p.value,2) ,sep=''), pch=19, xaxt='n', yaxt="n", col=cols[classes[sel1]], xlab='', ylab='')
+      axis(1,  lwd = 0, lwd.ticks = 3, las = 1, cex.axis=2, mgp = c(3, 1.2, 0))
+      axis(2, lwd = 0, lwd.ticks = 3, las = 1, cex.axis=2)
+      box(lwd = 3)
 	  lines(c(0,100), c(0,100), lwd=2)
-          mtext('Z loss rate', side = 1, line = 3.5, cex = 1.6)
+      mtext('Z loss rate', side = 1, line = 3.5, cex = 1.6)
 
 	  sel4=classes==1
 	  co=cor.test(pzmort[sel4], pvmort[sel4])
-          plot(pzmort[sel4], pvmort[sel4],  main=paste(suff,'\n','cor=',signif(co$estimate, 2), ' p.value=',signif(co$p.value,2) ,sep=''), pch=19, xaxt='n', yaxt="n", col=cols[classes[sel4]], xlab='', ylab='')
-          axis(1,  lwd = 0, lwd.ticks = 3, las = 1, cex.axis=2, mgp = c(3, 1.2, 0))
-          axis(2, lwd = 0, lwd.ticks = 3, las = 1, cex.axis=2)
-          box(lwd = 3)
+      plot(pzmort[sel4], pvmort[sel4],  main=paste(suff,'\n','cor=',signif(co$estimate, 2), ' p.value=',signif(co$p.value,2) ,sep=''), pch=19, xaxt='n', yaxt="n", col=cols[classes[sel4]], xlab='', ylab='')
+      axis(1,  lwd = 0, lwd.ticks = 3, las = 1, cex.axis=2, mgp = c(3, 1.2, 0))
+      axis(2, lwd = 0, lwd.ticks = 3, las = 1, cex.axis=2)
+      box(lwd = 3)
 	  lines(c(0,100), c(0,100), lwd=2)
-          mtext('% Z mort', side = 1, line = 3.5, cex = 1.6)
+      mtext('% Z mort', side = 1, line = 3.5, cex = 1.6)
 
-          co=cor.test(GR[sel4], VL[sel4])
-          plot(GR[sel4], VL[sel4],  main=paste(suff,'\n','cor=',signif(co$estimate, 2), ' p.value=',signif(co$p.value,2) ,sep=''), pch=19, xaxt='n', yaxt="n", col=cols[classes[sel4]], xlab='', ylab='')
-          axis(1,  lwd = 0, lwd.ticks = 3, las = 1, cex.axis=2, mgp = c(3, 1.2, 0))
-          axis(2, lwd = 0, lwd.ticks = 3, las = 1, cex.axis=2)
-          box(lwd = 3)
+      co=cor.test(GR[sel4], VL[sel4])
+      plot(GR[sel4], VL[sel4],  main=paste(suff,'\n','cor=',signif(co$estimate, 2), ' p.value=',signif(co$p.value,2) ,sep=''), pch=19, xaxt='n', yaxt="n", col=cols[classes[sel4]], xlab='', ylab='')
+      axis(1,  lwd = 0, lwd.ticks = 3, las = 1, cex.axis=2, mgp = c(3, 1.2, 0))
+      axis(2, lwd = 0, lwd.ticks = 3, las = 1, cex.axis=2)
+      box(lwd = 3)
 	  lines(c(0,100), c(0,100), lwd=2)
-          mtext('Z loss', side = 1, line = 3.5, cex = 1.6)
+      mtext('Z loss', side = 1, line = 3.5, cex = 1.6)
 
 	  co=cor.test(LR_Z[sel4], LR_V[sel4])
-          plot(LR_Z[sel4], LR_V[sel4],  main=paste(suff,'\n','cor=',signif(co$estimate, 2), ' p.value=',signif(co$p.value,2) ,sep=''), pch=19, xaxt='n', yaxt="n", col=cols[classes[sel4]], xlab='', ylab='')
-          axis(1,  lwd = 0, lwd.ticks = 3, las = 1, cex.axis=2, mgp = c(3, 1.2, 0))
-          axis(2, lwd = 0, lwd.ticks = 3, las = 1, cex.axis=2)
-          box(lwd = 3)
+      plot(LR_Z[sel4], LR_V[sel4],  main=paste(suff,'\n','cor=',signif(co$estimate, 2), ' p.value=',signif(co$p.value,2) ,sep=''), pch=19, xaxt='n', yaxt="n", col=cols[classes[sel4]], xlab='', ylab='')
+      axis(1,  lwd = 0, lwd.ticks = 3, las = 1, cex.axis=2, mgp = c(3, 1.2, 0))
+      axis(2, lwd = 0, lwd.ticks = 3, las = 1, cex.axis=2)
+      box(lwd = 3)
 	  lines(c(0,100), c(0,100), lwd=2)
-          mtext('Z loss rate', side = 1, line = 3.5, cex = 1.6)
+      mtext('Z loss rate', side = 1, line = 3.5, cex = 1.6)
 
 	  sel2=classes==2
 	  co=cor.test(pzmort[sel2], pvmort[sel2])
 	  plot(pzmort[sel2], pvmort[sel2],  main=paste(suff,'\n','cor=',signif(co$estimate, 2), ' p.value=',signif(co$p.value,2) ,sep=''), pch=19, xaxt='n', yaxt="n", col=cols[classes[sel2]], xlab='', ylab='')
 	  axis(1,  lwd = 0, lwd.ticks = 3, las = 1, cex.axis=2, mgp = c(3, 1.2, 0))
-          axis(2, lwd = 0, lwd.ticks = 3, las = 1, cex.axis=2)
-          box(lwd = 3)
+      axis(2, lwd = 0, lwd.ticks = 3, las = 1, cex.axis=2)
+      box(lwd = 3)
 	  lines(c(0,100), c(0,100), lwd=2)
-          mtext('% Z mort', side = 1, line = 3.5, cex = 1.6)
+      mtext('% Z mort', side = 1, line = 3.5, cex = 1.6)
 
 	  co=cor.test(GR[sel2], VL[sel2])
 	  plot(GR[sel2], VL[sel2],  main=paste(suff,'\n','cor=',signif(co$estimate, 2), ' p.value=',signif(co$p.value,2) ,sep=''), pch=19, xaxt='n', yaxt="n", col=cols[classes[sel2]], xlab='', ylab='')
 	  axis(1,  lwd = 0, lwd.ticks = 3, las = 1, cex.axis=2, mgp = c(3, 1.2, 0))
-          axis(2, lwd = 0, lwd.ticks = 3, las = 1, cex.axis=2)
-          box(lwd = 3)
+      axis(2, lwd = 0, lwd.ticks = 3, las = 1, cex.axis=2)
+      box(lwd = 3)
 	  lines(c(0,100), c(0,100), lwd=2)
-          mtext('Z loss', side = 1, line = 3.5, cex = 1.6)
+      mtext('Z loss', side = 1, line = 3.5, cex = 1.6)
 	  
 	  co=cor.test(LR_Z[sel2], LR_V[sel2])
-          plot(LR_Z[sel2], LR_V[sel2],  main=paste(suff,'\n','cor=',signif(co$estimate, 2), ' p.value=',signif(co$p.value,2) ,sep=''), pch=19, xaxt='n', yaxt="n", col=cols[classes[sel2]], xlab='', ylab='')
-          axis(1,  lwd = 0, lwd.ticks = 3, las = 1, cex.axis=2, mgp = c(3, 1.2, 0))
-          axis(2, lwd = 0, lwd.ticks = 3, las = 1, cex.axis=2)
-          box(lwd = 3)
+      plot(LR_Z[sel2], LR_V[sel2],  main=paste(suff,'\n','cor=',signif(co$estimate, 2), ' p.value=',signif(co$p.value,2) ,sep=''), pch=19, xaxt='n', yaxt="n", col=cols[classes[sel2]], xlab='', ylab='')
+      axis(1,  lwd = 0, lwd.ticks = 3, las = 1, cex.axis=2, mgp = c(3, 1.2, 0))
+      axis(2, lwd = 0, lwd.ticks = 3, las = 1, cex.axis=2)
+      box(lwd = 3)
 	  lines(c(0,100), c(0,100), lwd=2)
-          mtext('Z loss rate', side = 1, line = 3.5, cex = 1.6)
+      mtext('Z loss rate', side = 1, line = 3.5, cex = 1.6)
 
 
 	  sel3=classes==3
 	  co=cor.test(pzmort[sel3], pvmort[sel3])
 	  plot(pzmort[sel3], pvmort[sel3],  main=paste(suff,'\n','cor=',signif(co$estimate, 2), ' p.value=',signif(co$p.value,2) ,sep=''), pch=19,xaxt='n', yaxt="n" ,col=cols[classes[sel3]], xlab='', ylab='')
   	  axis(1,  lwd = 0, lwd.ticks = 3, las = 1, cex.axis=2, mgp = c(3, 1.2, 0))
-          axis(2, lwd = 0, lwd.ticks = 3, las = 1, cex.axis=2)
-          box(lwd = 3)
+      axis(2, lwd = 0, lwd.ticks = 3, las = 1, cex.axis=2)
+      box(lwd = 3)
 	  lines(c(0,100), c(0,100), lwd=2)
-          mtext('% Z mort', side = 1, line = 3.5, cex = 1.6)
+      mtext('% Z mort', side = 1, line = 3.5, cex = 1.6)
 
 	  co=cor.test(GR[sel3], VL[sel3])
 	  plot(GR[sel3], VL[sel3],  main=paste(suff,'\n','cor=',signif(co$estimate, 2), ' p.value=',signif(co$p.value,2) ,sep=''), pch=19, xaxt='n', yaxt="n", col=cols[classes[sel3]], xlab='', ylab='')
-          axis(1,  lwd = 0, lwd.ticks = 3, las = 1, cex.axis=2, mgp = c(3, 1.2, 0))
-          axis(2, lwd = 0, lwd.ticks = 3, las = 1, cex.axis=2)
-          box(lwd = 3)
+      axis(1,  lwd = 0, lwd.ticks = 3, las = 1, cex.axis=2, mgp = c(3, 1.2, 0))
+      axis(2, lwd = 0, lwd.ticks = 3, las = 1, cex.axis=2)
+      box(lwd = 3)
 	  lines(c(0,100), c(0,100), lwd=2)
-          mtext('Z loss', side = 1, line = 3.5, cex = 1.6)
+      mtext('Z loss', side = 1, line = 3.5, cex = 1.6)
 
 	  co=cor.test(LR_Z[sel3], LR_V[sel3])
-          plot(LR_Z[sel3], LR_V[sel3],  main=paste(suff,'\n','cor=',signif(co$estimate, 2), ' p.value=',signif(co$p.value,2) ,sep=''), pch=19, xaxt='n', yaxt="n", col=cols[classes[sel3]], xlab='', ylab='')
-          axis(1,  lwd = 0, lwd.ticks = 3, las = 1, cex.axis=2, mgp = c(3, 1.2, 0))
-          axis(2, lwd = 0, lwd.ticks = 3, las = 1, cex.axis=2)
-          box(lwd = 3)
+      plot(LR_Z[sel3], LR_V[sel3],  main=paste(suff,'\n','cor=',signif(co$estimate, 2), ' p.value=',signif(co$p.value,2) ,sep=''), pch=19, xaxt='n', yaxt="n", col=cols[classes[sel3]], xlab='', ylab='')
+      axis(1,  lwd = 0, lwd.ticks = 3, las = 1, cex.axis=2, mgp = c(3, 1.2, 0))
+      axis(2, lwd = 0, lwd.ticks = 3, las = 1, cex.axis=2)
+      box(lwd = 3)
 	  lines(c(0,100), c(0,100), lwd=2)
-          mtext('Z loss rate', side = 1, line = 3.5, cex = 1.6)
+      mtext('Z loss rate', side = 1, line = 3.5, cex = 1.6)
   }
   dev.off()
 }
 
 
+# difference between Z and V mortality
 if (depth=='int'){
         if (region=='world'){
                 pdf(paste('3D_darwin_maps_comparisons_deltas_ZV_mort_bis_',sca,'_',type,'_ref-',ref_sim,'.pdf', sep=''), width = wd, height = hg)
@@ -771,7 +786,7 @@ for (suff in suffixes[1:ns]){
 dev.off()
 
 
-
+# ratio between Z and V mortality
 if (depth=='int'){
         if (region=='world'){
                 pdf(paste('3D_darwin_maps_comparisons_ratios_ZV_mort_bis_',sca,'_',type,'_ref-',ref_sim,'.pdf', sep=''), width = wd, height = hg)
@@ -805,7 +820,7 @@ for (suff in suffixes[1:ns]){
                         ratio[ratio< -1]=-1
                 }
                 zlim=c(-mxa, mxa)
-		saveRDS(ratio, paste('log10_ratio_Z_V_mort_', suff,'.rds', sep=''))
+		        saveRDS(ratio, paste('log10_ratio_Z_V_mort_', suff,'.rds', sep=''))
                 template_map(min_lo, max_lo, min_lt, max_lt)
                 image(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], ratio,add = TRUE, useRaster = TRUE, col = colos, zlim = zlim, main=paste('ratio Zmort/Vmort ', suff, sep=''))
                 axis_map(min_lo, max_lo, min_lt, max_lt, step_lo, step_lt)
@@ -846,6 +861,7 @@ for (suff in suffixes[1:ns]){
 }
 dev.off()
 
+# ratios of Z and V abundances
 if (depth=='int'){
         if (region=='world'){
                 pdf(paste('3D_darwin_maps_comparisons_ratios_ZV_bis_',sca,'_',type,'_ref-',ref_sim,'.pdf', sep=''), width = wd, height = hg)
@@ -922,14 +938,14 @@ for (suff in suffixes[1:ns]){
 dev.off()
 
 
-
+# plotting model comparison with the control: % changess or log10 ratios
 tracers_to_save=c('Total_P', 'NPP', 'TDN', 'log10_DON_DIN', 'chl')
-
 data_to_save=rep(list(rep(list(NULL), length(tracers_to_save))), length(suffixes)-1)
 names(data_to_save)=suffixes[1:(length(suffixes)-1)]
 for (suff in names(data_to_save)){
 	names(data_to_save[[suff]])=tracers_to_save
 }	
+# variables to plot depending whether the ref simulation has the virus or not
 if (startsWith(ref_sim, 'virus')){
   var_to_plot=c(1:3, 5:12, 14, 21, 33,34, 37:46, 47)#, 38, 39)
 } else{
@@ -962,6 +978,7 @@ for (n in names_tracers[var_to_plot]){
 	distrib=NULL
 	mxs_d=NULL
 	for (suff in suffixes[1:(n_suff-1)]){
+		# compute the wanted comparison based on sca and te type of variable + mins and maxs and percentile across al compared simualtions
 		if (!grepl('%', n) & !grepl('log', n)){
 			if (sca=='0'){
 				delta=(data_to_plot[[suff]][[n]]-data_to_plot[[suff_ref]][[n]])*100/data_to_plot[[suff_ref]][[n]]	
@@ -988,15 +1005,17 @@ for (n in names_tracers[var_to_plot]){
 		mins=c(mins, min(delta[delta!=-Inf & delta!=Inf], na.rm=T))
 		maxs=c(maxs, max(delta[delta!=-Inf & delta!=Inf], na.rm=T))
 		if (n %in% tracers_to_save){
-                	data_to_save[[suff]][[n]]=delta
-        	}
+                data_to_save[[suff]][[n]]=delta
+        }
 	}
 	mx_d=max(mxs_d)
+	# 99th percentile of the data
 	mx_ab= quantile(abs(distrib), 0.99)
 	print(n)
 	print(mx_ab)
 	mx_ab1=mx_ab
 
+	# clipping the range
 	if (sca=='log10' ){
 		lim_max=2
 	} else if (sca=='0'){
@@ -1008,6 +1027,7 @@ for (n in names_tracers[var_to_plot]){
 	}	
 	zlim=c(-mx_ab, mx_ab)
 
+	# plotting the maps
 	for (suff in suffixes[1:(n_suff-1)]){
 		if (!grepl('%', n) & !grepl('log', n)){
 			if (sca=='0'){
@@ -1017,15 +1037,16 @@ for (n in names_tracers[var_to_plot]){
 			}
 		} else{
 			if (sca=='0'){
-                                delta=(data_to_plot[[suff]][[n]]-data_to_plot[[suff_ref]][[n]])
-                        } else{
+                            delta=(data_to_plot[[suff]][[n]]-data_to_plot[[suff_ref]][[n]])
+            } else{
 				if (!grepl('log', n)){
-                                        delta=log10(data_to_plot[[suff]][[n]]/data_to_plot[[suff_ref]][[n]])
-                                } else{
-                                        delta=(data_to_plot[[suff]][[n]]-data_to_plot[[suff_ref]][[n]])
-                                }
-                        }
+                            delta=log10(data_to_plot[[suff]][[n]]/data_to_plot[[suff_ref]][[n]])
+                } else{
+                            delta=(data_to_plot[[suff]][[n]]-data_to_plot[[suff_ref]][[n]])
+                }
+            }
 		}
+		# clipping
 		delta[delta>mx_ab]=mx_ab
 		delta[delta< -mx_ab]= -mx_ab
 		old_par <- par(no.readonly = TRUE)
@@ -1055,15 +1076,16 @@ for (n in names_tracers[var_to_plot]){
                         lon_g=202.5
                         lat_g=24.5
                         star(lon_g,lat_g, r=0.5, col="dodgerblue")
-                }
-                if( region=='gradients'){
+        }
+        if( region=='gradients'){
                         lon_g=202 #360-158 (lon of gradients)
                         lats_g=seq(23.5, 43.5, 1)
                         lon_g_ind=which.min(abs(lon-lon_g))
                         lats_g_ind=sapply(lats_g, function(x, lt){which.min(abs(x-lt))}, lt=lat)
                         points(rep(lon_g_ind,length(lats_g_ind)) ,lats_g , pch=19, type='l', lwd=3)
-                }
+        }
 
+		# PDF and CDF plots
 		if (sum(!is.na(as.vector(delta)))>10){
 		  d=density(delta[!is.na(delta)])
 		  y_max_buffered <- mx_d * 1.1
@@ -1081,6 +1103,7 @@ for (n in names_tracers[var_to_plot]){
 
 	}
 
+	# legend
 	t1_min=-mx_ab
 	t1_max=mx_ab
 	# 2️⃣ Position of the legend
@@ -1101,7 +1124,8 @@ for (n in names_tracers[var_to_plot]){
         }
         text(x=legend_x+12, y=i+1, labels = signif(t1_max, 2))
         text(x=legend_x,y=i+3, labels=paste('delta ', n, sep='') )
-	
+
+	# in case of % change, plot % change on a log scale (negatives and positives)
 	if (mx_ab1>200){
 		ceil_to_power_of_10 <- function(x) {
   			if (any(x <= 0)) stop("x must be positive")
@@ -1161,15 +1185,15 @@ for (n in names_tracers[var_to_plot]){
 
          	# 3️⃣ Draw the gradient as tiny rectangles
         	# Draw gradient as stacked rectangles
-       		plot(0,0, xlim=c(0, 60), ylim=c(0, 105), col='white', yaxt='n', xaxt='n',xlab='', ylab='', bty='n')
+       	plot(0,0, xlim=c(0, 60), ylim=c(0, 105), col='white', yaxt='n', xaxt='n',xlab='', ylab='', bty='n')
 
-        	text(x=legend_x+12, y=0, labels = signif(t1_min, 2))
-        	for (i in 1:length(colos)){
+        text(x=legend_x+12, y=0, labels = signif(t1_min, 2))
+        for (i in 1:length(colos)){
                 	rect(xleft = legend_x, xright = legend_x + 10,
                 	ybottom = i,
                 	ytop    = i+1,
                 	col     = colos[i], border = NA)
-        	}
+        }
 		text(x=legend_x+12, y=i+1, labels = signif(t1_max, 2))
         text(x=legend_x,y=i+3, labels=paste('delta ', n, sep='') )
 		text(x=legend_x+12, y=50, labels = 0)
@@ -1183,6 +1207,7 @@ for (n in names_tracers[var_to_plot]){
 }
 dev.off()
 
+# function for pairwise wilcoxon test
 t_test_ignore_gps=function(grouping, totest){
   min_n <- 2  # minimum observations required per group
 
@@ -1220,7 +1245,7 @@ t_test_ignore_gps=function(grouping, totest){
   return(t_test)
 }
 
-
+# function for plotting letters of significant tests
 plot_sigs=function(totest,vec_to_plot, names, sep_vals){
     grouping=NULL
     for (j in names(vec_to_plot)){
@@ -1259,7 +1284,7 @@ plot_sigs=function(totest,vec_to_plot, names, sep_vals){
     return(list(sigs_x, sigs_text))
 }
 
-
+# Simplified round Earth
 R <- 6371   # Earth radius in km
 deg2rad <- pi/180
 dlat <- 1 * deg2rad   # 1 degree in radians
@@ -1290,6 +1315,7 @@ ocean80 <- grid_all$lat >= 80 & is.na(grid_all$land)
 # total ocean area
 ocean_area_80N <- sum(grid_all$area[ocean80])
 
+# pdf of classification of increased productivity regions (based on DNR changes) if the reference simulation is no virus				
 if (grepl('no_virus', ref_sim)){
 if (depth=='int'){
         if (region=='world'){
@@ -1306,7 +1332,7 @@ if (depth=='int'){
 }
 
 cols <- c("green4", "gold")
-
+# initiate data
 surfaces=matrix(0, ncol=n_suff-1, nrow=2)
 prods=matrix(0, ncol=(n_suff-1)*2, nrow=3)
 colnames(surfaces)=suffixes_bis[1:(n_suff-1)]
@@ -1331,6 +1357,7 @@ count0=1
 for (suff in suffixes[1:(n_suff-1)]){
 	suff_bis=suffixes_bis[which(suffixes==suff)]
 
+	# region classification
 	cond_1=data_to_save[[suff]][['NPP']] >0  & data_to_save[[suff]][['log10_DON_DIN']] <0
 	cond_2=data_to_save[[suff]][['NPP']] >0  & data_to_save[[suff]][['log10_DON_DIN']] >0
 	conts=matrix(0, nrow=nr, ncol=nc)
@@ -1338,19 +1365,22 @@ for (suff in suffixes[1:(n_suff-1)]){
 	conts[cond_2==T]=2
 	conts[is.na(data_to_plot[[suff]][['%Inf']])]=NA
 	conts0=conts
-        conts0[conts==0]=NA
-	 bks=seq(0.5, length(cols)+0.5, 1)
+    conts0[conts==0]=NA
+	bks=seq(0.5, length(cols)+0.5, 1)
+	# plotting the map
 	template_map(min_lo, max_lo, min_lt, max_lt)	
 	image(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], conts0, col = cols, useRaster = TRUE, add = TRUE, breaks=bks)
 	axis_map(min_lo, max_lo, min_lt, max_lt, step_lo, step_lt)	
 
 	conts=as.vector(conts)
 
+	# region area
 	area_1=sum(cell_area[conts == 1], na.rm = TRUE)
 	area_2=sum(cell_area[conts == 2], na.rm = TRUE)
 	surfaces[1, count0]=area_1
 	surfaces[2, count0]=area_2
 
+	# productivity
 	prod=as.vector(data_to_plot[[suff]][['NPP']])
 	prod_ref=as.vector(data_to_plot[[suffixes[n_suff]]][['NPP']])
 	
@@ -1359,27 +1389,28 @@ for (suff in suffixes[1:(n_suff-1)]){
 	prod_3=sum(cell_area[conts == 0]*1e6*prod[conts == 0], na.rm = TRUE)
 	
 	prod_1_ref=sum(cell_area[conts == 1]*1e6*prod_ref[conts == 1], na.rm = TRUE)
-        prod_2_ref=sum(cell_area[conts == 2]*1e6*prod_ref[conts == 2], na.rm = TRUE)
-        prod_3_ref=sum(cell_area[conts == 0]*1e6*prod_ref[conts == 0], na.rm = TRUE)
+    prod_2_ref=sum(cell_area[conts == 2]*1e6*prod_ref[conts == 2], na.rm = TRUE)
+    prod_3_ref=sum(cell_area[conts == 0]*1e6*prod_ref[conts == 0], na.rm = TRUE)
 
 
 	prods[1, count]=prod_2_ref
-        prods[2, count]=prod_1_ref
-        prods[3, count]=prod_3_ref
+    prods[2, count]=prod_1_ref
+    prods[3, count]=prod_3_ref
 
 	prods[1, count+1]=prod_2
-        prods[2, count+1]=prod_1
-        prods[3, count+1]=prod_3
+    prods[2, count+1]=prod_1
+    prods[3, count+1]=prod_3
 	
 	
 	productivities_all[[1]][[suff_bis]]=prod[conts == 1]
-        productivities_all[[2]][[suff_bis]]=prod[conts == 2]
+    productivities_all[[2]][[suff_bis]]=prod[conts == 2]
 	productivities_all[[3]][[suff_bis]]=prod[conts == 0]
         
-        productivities_all[[1]][[paste('NV', suff_bis, sep='-')]]=prod_ref[conts == 1]
-        productivities_all[[2]][[paste('NV', suff_bis, sep='-')]]=prod_ref[conts == 2]
-        productivities_all[[3]][[paste('NV', suff_bis, sep='-')]]=prod_ref[conts == 0]
-	
+    productivities_all[[1]][[paste('NV', suff_bis, sep='-')]]=prod_ref[conts == 1]
+    productivities_all[[2]][[paste('NV', suff_bis, sep='-')]]=prod_ref[conts == 2]
+    productivities_all[[3]][[paste('NV', suff_bis, sep='-')]]=prod_ref[conts == 0]
+
+	# wilcoxon test compared to reference (no virus)
 	for (i in 1:3){
                 if (i!=3){
                         if (sum(conts == i, na.rm=T)>5){
@@ -1396,13 +1427,13 @@ for (suff in suffixes[1:(n_suff-1)]){
                         }
                         wilcox_tests[[i]][[suff_bis]]=p_val
                 }
-        }
+    }
 	
 	count=count+2
 	count0=count0+1
 }
 
-
+# surface barplot
 tot_surf_ocean=sum(cell_area[!is.na(conts)], na.rm=T)+ocean_area_80N
 barplot(surfaces*100/tot_surf_ocean, col=c("green4", "gold"), ylab='% OceanArea', beside=T)
 area_ticks <- pretty(c(0, max(surfaces)))
@@ -1436,7 +1467,7 @@ saveRDS(prods, paste('production_new-prod_',sca,'_',type,'_depth',de,'_', region
 saveRDS(prods*100/tot_prod,paste('production_partitioning_new-prod_',sca,'_',type,'_depth',de,'_', region,'_ref-',ref_sim,'.rds', sep=''))
 saveRDS(surfaces*100/tot_surf_ocean,paste('area_partitioning_new-prod_',sca,'_',type,'_depth',de,'_', region,'_ref-',ref_sim,'.rds', sep=''))
 
-
+# violin plots of productivities
 library('vioplot')
 cols=c("green4", "gold", 'dodgerblue')
 sep_vals=seq(-0.25, 0.25, 0.5/(length(suffixes)-2))
@@ -1489,7 +1520,7 @@ for (i in 1:length(cols)){
 
 dev.off()
 
-
+# pdf of classification of increased productivity regions (based on DNR changes but more classes) if the reference simulation is no virus (resembles previous pdf: not commented)
 if (depth=='int'){
         if (region=='world'){
                 pdf(paste('3D_darwin_maps_comparisons_new-prod_regions_bis_',sca,'_',type,'_ref-',ref_sim,'.pdf', sep=''), width = wd, height = hg)
@@ -1540,127 +1571,126 @@ for (suff in suffixes[1:(n_suff-1)]){
 	cont_P[cond_P==F]=0
 
 	cond_chl = data_to_save[[suff]][['chl']] >0
-        cont_chl=cond_chl
-        cont_chl[cond_chl==T]=1
-        cont_chl[cond_chl==F]=0
+    cont_chl=cond_chl
+    cont_chl[cond_chl==T]=1
+    cont_chl[cond_chl==F]=0
 
-        cond_1=data_to_save[[suff]][['NPP']] >0  & data_to_save[[suff]][['log10_DON_DIN']] <0 & sign(data_to_plot[[suff]][['log10_DON_DIN']]) != sign(data_to_plot[[suff_ref]][['log10_DON_DIN']])
-        cond_2=data_to_save[[suff]][['NPP']] >0  & data_to_save[[suff]][['log10_DON_DIN']] <0 & sign(data_to_plot[[suff]][['log10_DON_DIN']]) == sign(data_to_plot[[suff_ref]][['log10_DON_DIN']])
+    cond_1=data_to_save[[suff]][['NPP']] >0  & data_to_save[[suff]][['log10_DON_DIN']] <0 & sign(data_to_plot[[suff]][['log10_DON_DIN']]) != sign(data_to_plot[[suff_ref]][['log10_DON_DIN']])
+    cond_2=data_to_save[[suff]][['NPP']] >0  & data_to_save[[suff]][['log10_DON_DIN']] <0 & sign(data_to_plot[[suff]][['log10_DON_DIN']]) == sign(data_to_plot[[suff_ref]][['log10_DON_DIN']])
 	
 	cond_3=data_to_save[[suff]][['NPP']] >0  & data_to_save[[suff]][['log10_DON_DIN']] >0 & sign(data_to_plot[[suff]][['log10_DON_DIN']]) == sign(data_to_plot[[suff_ref]][['log10_DON_DIN']])
 	cond_4=data_to_save[[suff]][['NPP']] >0  & data_to_save[[suff]][['log10_DON_DIN']] >0 & sign(data_to_plot[[suff]][['log10_DON_DIN']]) != sign(data_to_plot[[suff_ref]][['log10_DON_DIN']])
 
-        cond_1_b=data_to_save[[suff]][['NPP']] >0 & data_to_save[[suff]][['Total_P']] >0 & data_to_save[[suff]][['chl']] >0
+    cond_1_b=data_to_save[[suff]][['NPP']] >0 & data_to_save[[suff]][['Total_P']] >0 & data_to_save[[suff]][['chl']] >0
 	cond_2_b=data_to_save[[suff]][['NPP']] >0 & data_to_save[[suff]][['Total_P']] <0 & data_to_save[[suff]][['chl']] >0
 	cond_3_b=data_to_save[[suff]][['NPP']] >0 & data_to_save[[suff]][['Total_P']] <0 & data_to_save[[suff]][['chl']] <0
 	
 	
 	conts=matrix(0, nrow=nr, ncol=nc)
-        conts[cond_1==T]=1
-        conts[cond_2==T]=2
+    conts[cond_1==T]=1
+    conts[cond_2==T]=2
 	conts[cond_3==T]=3
 	conts[cond_4==T]=4
 	conts_b=matrix(0, nrow=nr, ncol=nc)
 	conts_b[cond_1_b==T]=1
-        conts_b[cond_2_b==T]=2
-        conts_b[cond_3_b==T]=3
+    conts_b[cond_2_b==T]=2
+    conts_b[cond_3_b==T]=3
 	na_cond=is.na(data_to_plot[[suff]][['%Inf']])
-        conts[na_cond]=NA
+    conts[na_cond]=NA
 	conts_b[na_cond]=NA
 	cont_P[na_cond]=NA
 	cont_chl[na_cond]=NA
-        conts0=conts
-        conts0[conts==0]=NA
+    conts0=conts
+    conts0[conts==0]=NA
 	conts0_b=conts_b
-        conts0_b[conts_b==0]=NA
+    conts0_b[conts_b==0]=NA
 	bks=seq(0.5, length(cols)+0.5, 1)
 	bks_b=seq(0.5, length(cols_b)+0.5, 1)
 
-        template_map(min_lo, max_lo, min_lt, max_lt)
-        image(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], conts0, col = cols, useRaster = TRUE, add = TRUE,  breaks=bks)
-        axis_map(min_lo, max_lo, min_lt, max_lt, step_lo, step_lt)
+    template_map(min_lo, max_lo, min_lt, max_lt)
+    image(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], conts0, col = cols, useRaster = TRUE, add = TRUE,  breaks=bks)
+    axis_map(min_lo, max_lo, min_lt, max_lt, step_lo, step_lt)
 
 	template_map(min_lo, max_lo, min_lt, max_lt)
-        image(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], conts0, col = cols, useRaster = TRUE, add = TRUE,  breaks=bks)
-        axis_map(min_lo, max_lo, min_lt, max_lt, step_lo, step_lt)
+    image(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], conts0, col = cols, useRaster = TRUE, add = TRUE,  breaks=bks)
+    axis_map(min_lo, max_lo, min_lt, max_lt, step_lo, step_lt)
 	contour(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt],cont_P, levels=c(0,1), add=T, labels=0, lwd=2)
         
 	template_map(min_lo, max_lo, min_lt, max_lt)
-        image(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], conts0, col = cols, useRaster = TRUE, add = TRUE,  breaks=bks)
-        axis_map(min_lo, max_lo, min_lt, max_lt, step_lo, step_lt)
-        contour(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt],cont_P, levels=c(0,1), add=T, labels=0, lwd=2)
+    image(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], conts0, col = cols, useRaster = TRUE, add = TRUE,  breaks=bks)
+    axis_map(min_lo, max_lo, min_lt, max_lt, step_lo, step_lt)
+    contour(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt],cont_P, levels=c(0,1), add=T, labels=0, lwd=2)
 	contour(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt],cont_chl, levels=c(0,1), add=T, labels=0, lwd=2, col='turquoise')
 
 	template_map(min_lo, max_lo, min_lt, max_lt)
-        image(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], conts0_b, col = cols_b, useRaster = TRUE, add = TRUE,  breaks=bks_b)
-        axis_map(min_lo, max_lo, min_lt, max_lt, step_lo, step_lt)
+    image(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], conts0_b, col = cols_b, useRaster = TRUE, add = TRUE,  breaks=bks_b)
+    axis_map(min_lo, max_lo, min_lt, max_lt, step_lo, step_lt)
 
 	conts=as.vector(conts)
 
-        area_1=sum(cell_area[conts == 1], na.rm = TRUE)
-        area_2=sum(cell_area[conts == 2], na.rm = TRUE)
-        area_3=sum(cell_area[conts == 3], na.rm = TRUE)
+    area_1=sum(cell_area[conts == 1], na.rm = TRUE)
+    area_2=sum(cell_area[conts == 2], na.rm = TRUE)
+    area_3=sum(cell_area[conts == 3], na.rm = TRUE)
 	area_4=sum(cell_area[conts == 4], na.rm = TRUE)
 	surfaces[1, count0]=area_1
-        surfaces[2, count0]=area_2
+    surfaces[2, count0]=area_2
 	surfaces[3, count0]=area_3
 	surfaces[4, count0]=area_4
 
-        prod=as.vector(data_to_plot[[suff]][['NPP']])
-        prod_ref=as.vector(data_to_plot[[suffixes[n_suff]]][['NPP']])
+    prod=as.vector(data_to_plot[[suff]][['NPP']])
+    prod_ref=as.vector(data_to_plot[[suffixes[n_suff]]][['NPP']])
 
-        prod_1=sum(cell_area[conts == 1]*1e6*prod[conts == 1], na.rm = TRUE)
-        prod_2=sum(cell_area[conts == 2]*1e6*prod[conts == 2], na.rm = TRUE)
+    prod_1=sum(cell_area[conts == 1]*1e6*prod[conts == 1], na.rm = TRUE)
+    prod_2=sum(cell_area[conts == 2]*1e6*prod[conts == 2], na.rm = TRUE)
 	prod_3=sum(cell_area[conts == 3]*1e6*prod[conts == 3], na.rm = TRUE)
-        prod_4=sum(cell_area[conts == 4]*1e6*prod[conts == 4], na.rm = TRUE)
+    prod_4=sum(cell_area[conts == 4]*1e6*prod[conts == 4], na.rm = TRUE)
 	prod_5=sum(cell_area[conts == 0]*1e6*prod[conts == 0], na.rm = TRUE)
 
-        prod_1_ref=sum(cell_area[conts == 1]*1e6*prod_ref[conts == 1], na.rm = TRUE)
-        prod_2_ref=sum(cell_area[conts == 2]*1e6*prod_ref[conts == 2], na.rm = TRUE)
-        prod_3_ref=sum(cell_area[conts == 3]*1e6*prod_ref[conts == 3], na.rm = TRUE)
+    prod_1_ref=sum(cell_area[conts == 1]*1e6*prod_ref[conts == 1], na.rm = TRUE)
+    prod_2_ref=sum(cell_area[conts == 2]*1e6*prod_ref[conts == 2], na.rm = TRUE)
+    prod_3_ref=sum(cell_area[conts == 3]*1e6*prod_ref[conts == 3], na.rm = TRUE)
 	prod_4_ref=sum(cell_area[conts == 4]*1e6*prod_ref[conts == 4], na.rm = TRUE)
 	prod_5_ref=sum(cell_area[conts == 0]*1e6*prod_ref[conts == 0], na.rm = TRUE)
       
-
-        prods[1, count]=prod_4_ref
-        prods[2, count]=prod_3_ref
+    prods[1, count]=prod_4_ref
+    prods[2, count]=prod_3_ref
 	prods[3, count]=prod_2_ref
-        prods[4, count]=prod_1_ref
+    prods[4, count]=prod_1_ref
 	prods[5, count]=prod_5_ref
 
 	prods[1, count+1]=prod_4
-        prods[2, count+1]=prod_3
-        prods[3, count+1]=prod_2
-        prods[4, count+1]=prod_1
-        prods[5, count+1]=prod_5
+    prods[2, count+1]=prod_3
+    prods[3, count+1]=prod_2
+    prods[4, count+1]=prod_1
+    prods[5, count+1]=prod_5
 
 	suff_bis=suffixes_bis[which(suffixes==suff)]
         
 	productivities[[1]][[suff_bis]]=prod[conts == 1]
-        productivities[[2]][[suff_bis]]=prod[conts == 2]
+    productivities[[2]][[suff_bis]]=prod[conts == 2]
 	productivities[[3]][[suff_bis]]=prod[conts == 3]
-        productivities[[4]][[suff_bis]]=prod[conts == 4]
+    productivities[[4]][[suff_bis]]=prod[conts == 4]
 	productivities[[5]][[suff_bis]]=prod[conts == 0]
 	
 	productivities_all[[1]][[suff_bis]]=prod[conts == 1]
-        productivities_all[[2]][[suff_bis]]=prod[conts == 2]
-        productivities_all[[3]][[suff_bis]]=prod[conts == 3]
-        productivities_all[[4]][[suff_bis]]=prod[conts == 4]
-        productivities_all[[5]][[suff_bis]]=prod[conts == 0]
+    productivities_all[[2]][[suff_bis]]=prod[conts == 2]
+    productivities_all[[3]][[suff_bis]]=prod[conts == 3]
+    productivities_all[[4]][[suff_bis]]=prod[conts == 4]
+    productivities_all[[5]][[suff_bis]]=prod[conts == 0]
 
 	if (count0==(n_suff-1)){
 		productivities[[1]][[suff_ref_bis]]=prod_ref[conts == 1]
-        	productivities[[2]][[suff_ref_bis]]=prod_ref[conts == 2]
-        	productivities[[3]][[suff_ref_bis]]=prod_ref[conts == 3]
-        	productivities[[4]][[suff_ref_bis]]=prod_ref[conts == 4]
-        	productivities[[5]][[suff_ref_bis]]=prod_ref[conts == 0]
+        productivities[[2]][[suff_ref_bis]]=prod_ref[conts == 2]
+        productivities[[3]][[suff_ref_bis]]=prod_ref[conts == 3]
+        productivities[[4]][[suff_ref_bis]]=prod_ref[conts == 4]
+        productivities[[5]][[suff_ref_bis]]=prod_ref[conts == 0]
 	}
 
 	productivities_all[[1]][[paste('NV', suff_bis, sep='-')]]=prod_ref[conts == 1]
-        productivities_all[[2]][[paste('NV', suff_bis, sep='-')]]=prod_ref[conts == 2]
-        productivities_all[[3]][[paste('NV', suff_bis, sep='-')]]=prod_ref[conts == 3]
-        productivities_all[[4]][[paste('NV', suff_bis, sep='-')]]=prod_ref[conts == 4]
-        productivities_all[[5]][[paste('NV', suff_bis, sep='-')]]=prod_ref[conts == 0]
+    productivities_all[[2]][[paste('NV', suff_bis, sep='-')]]=prod_ref[conts == 2]
+    productivities_all[[3]][[paste('NV', suff_bis, sep='-')]]=prod_ref[conts == 3]
+    productivities_all[[4]][[paste('NV', suff_bis, sep='-')]]=prod_ref[conts == 4]
+    productivities_all[[5]][[paste('NV', suff_bis, sep='-')]]=prod_ref[conts == 0]
 	
 	for (i in 1:5){
 		if (i!=5){
@@ -1756,8 +1786,8 @@ for (i in 1:length(cols)){
 dev.off()
 }
 
+# oligotrophic regions maps for the whole ocean and only tropical regions (40N to 40S)
 par(mar=c(5.1, 4.1, 4.1, 2.1))
-
 regs=c('all', 'trop')
 for (reg in regs){
 if (depth=='int'){
@@ -1774,8 +1804,10 @@ if (depth=='int'){
         }
 }
 
+# colors
 cols <- c("chocolate", "sandybrown")
 
+# initiate data
 surfaces=matrix(0, ncol=n_suff, nrow=2)
 prods=matrix(0, ncol=n_suff, nrow=3)
 colnames(surfaces)=suffixes_bis[1:(n_suff)]
@@ -1800,7 +1832,8 @@ if (type=='ind'){
 }
 
 for (suff in suffixes[1:n_suff]){
-        if (reg=='trop'){
+	# compute regions
+    if (reg=='trop'){
 	  cond_1=data_to_plot[[suff]][['chl']]<0.1 & data_to_plot[[suff]][['chl']]>0.05 & abs(lat_mat[i1_lo:i2_lo,i1_lt:i2_lt])<lt_lim
 	  cond_2=data_to_plot[[suff]][['chl']]>0 & data_to_plot[[suff]][['chl']]<0.05 & abs(lat_mat[i1_lo:i2_lo,i1_lt:i2_lt])<lt_lim
 	  cond_1_ref=data_to_plot[[suff_ref]][['chl']]<0.1 & data_to_plot[[suff_ref]][['chl']]>0.05 & abs(lat_mat[i1_lo:i2_lo,i1_lt:i2_lt])<lt_lim
@@ -1812,10 +1845,10 @@ for (suff in suffixes[1:n_suff]){
 	  cond_2_ref=data_to_plot[[suff_ref]][['chl']]>0 & data_to_plot[[suff_ref]][['chl']]<0.05
 	}
 	conts=matrix(0, nrow=nr, ncol=nc)
-        conts[cond_1==T]=1
-        conts[cond_2==T]=2
-        conts[is.na(data_to_plot[[suff]][['%Inf']])]=NA
-        conts0=conts
+    conts[cond_1==T]=1
+    conts[cond_2==T]=2
+    conts[is.na(data_to_plot[[suff]][['%Inf']])]=NA
+    conts0=conts
 	conts0[conts==0]=NA
         
 	if (reg=='trop'){
@@ -1826,24 +1859,25 @@ for (suff in suffixes[1:n_suff]){
 	}
 
 	conts_ref=matrix(0, nrow=nr, ncol=nc)
-        conts_ref[cond_1_ref==T]=1
-        conts_ref[cond_2_ref==T]=2
-        conts_ref[is.na(data_to_plot[[suff]][['%Inf']])]=NA
-        conts0_ref=conts_ref
-        conts0_ref[conts_ref==0]=NA
+    conts_ref[cond_1_ref==T]=1
+    conts_ref[cond_2_ref==T]=2
+    conts_ref[is.na(data_to_plot[[suff]][['%Inf']])]=NA
+    conts0_ref=conts_ref
+    conts0_ref[conts_ref==0]=NA
 	
 	if (reg=='trop'){
                 conts_ref[abs(lat_mat[i1_lo:i2_lo,i1_lt:i2_lt])>lt_lim]=3
-        }
-
+    }
+	# plot regions
 	template_map(min_lo, max_lo, min_lt, max_lt)
-        if (reg=='all'){
+    if (reg=='all'){
 	  image(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], conts0, col = cols, useRaster = TRUE, add=T, breaks=seq(0.5, 2.5, by=1) )
 	} else{
 	  image(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], conts0, col = c(cols, 'gray'), useRaster = TRUE, add=T , breaks=seq(0.5, 3.5, by=1))
 	}
     axis_map(min_lo, max_lo, min_lt, max_lt, step_lo, step_lt)
 
+	# region transitions compared to reference simulation
     diff_conts=matrix(0, nrow=nr, ncol=nc)
 	diff_conts[conts==1 & conts_ref==1]=1
 	diff_conts[conts==2 & conts_ref==2]=2
@@ -1863,19 +1897,20 @@ for (suff in suffixes[1:n_suff]){
 	  bks=seq(0.5, 8.5, by = 1)
 	}
 	diff_conts[is.na(data_to_plot[[suff]][['%Inf']])]=NA
-
+	#plot region transiiton
 	template_map(min_lo, max_lo, min_lt, max_lt)
     image(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], diff_conts, col = cols_diff, useRaster = TRUE, add=T, breaks=bks)
     axis_map(min_lo, max_lo, min_lt, max_lt, step_lo, step_lt)
 
 	
 	conts=as.vector(conts)
-
+	# areas
     area_1=sum(cell_area[conts == 1], na.rm = TRUE)
     area_2=sum(cell_area[conts == 2], na.rm = TRUE)
     surfaces[1, count0]=area_1
     surfaces[2, count0]=area_2
 
+	# productivities
     prod=as.vector(data_to_plot[[suff]][['NPP']])
     prod_ref=as.vector(data_to_plot[[suffixes[n_suff]]][['NPP']])
 
@@ -1895,7 +1930,7 @@ for (suff in suffixes[1:n_suff]){
     count0=count0+1
 }
 
-
+# surface area barplot
 tot_surf_ocean=sum(cell_area[!is.na(conts)], na.rm=T)+ocean_area_80N
 barplot(surfaces*100/tot_surf_ocean, col=c("chocolate", "sandybrown"), ylab='% OceanArea', beside=T)
 area_ticks <- pretty(c(0, max(surfaces)))
@@ -1903,6 +1938,7 @@ pct_ticks <- 100 * area_ticks / tot_surf_ocean
 axis(side = 4, at = pct_ticks, labels = format(area_ticks, big.mark = ","))
 mtext("Area (km²)", side = 4, line = 3)
 
+# scatter plot of region area compared to reference
 if (ref_sim %in% c('no_virus_shunt', 'no_virus', 'no_virus_shunt_all') & reg=='trop'){
         if (ref_sim=='no_virus_shunt'){
                 shunts=c(0, 25, 50, 75,100)
@@ -1924,24 +1960,22 @@ if (ref_sim %in% c('no_virus_shunt', 'no_virus', 'no_virus_shunt_all') & reg=='t
 
 
 	plot(shunts,surfaces1[1,1:n_shunt], ylim=c(0, 1.05*max(surfaces1)), col="chocolate", cex=3, pch=19)
-        lines(shunts, surfaces1[1,1:n_shunt], col="chocolate", lwd=2)
-        points(shunts, surfaces1[2,1:n_shunt], col="sandybrown", cex=3, pch=19)
-        lines(shunts, surfaces1[2,1:n_shunt], col="sandybrown", lwd=2)
+    lines(shunts, surfaces1[1,1:n_shunt], col="chocolate", lwd=2)
+    points(shunts, surfaces1[2,1:n_shunt], col="sandybrown", cex=3, pch=19)
+    lines(shunts, surfaces1[2,1:n_shunt], col="sandybrown", lwd=2)
 
-        abline(h=surfaces1[1,n_shunt+1], col="chocolate", lty=1, lwd=3)
-        abline(h=surfaces1[2,n_shunt+1], col="sandybrown", lty=1, lwd=3)
+    abline(h=surfaces1[1,n_shunt+1], col="chocolate", lty=1, lwd=3)
+    abline(h=surfaces1[2,n_shunt+1], col="sandybrown", lty=1, lwd=3)
 	abline(h=surfaces1[1,length(shunts)+2], col="chocolate", lty=2, lwd=3)
-        abline(h=surfaces1[2,length(shunts)+2], col="sandybrown", lty=2, lwd=3)
+    abline(h=surfaces1[2,length(shunts)+2], col="sandybrown", lty=2, lwd=3)
 	
 	axis(side = 4, at = pct_ticks, labels = format(area_ticks, big.mark = ","))
 	mtext("Area (km²)", side = 4, line = 3)
-
-
 }
 
 
 
-
+# barplots of prods
 print(apply(prods, 2, sum))
 tot_prod=sum(prods[,1])
 print(tot_prod)
@@ -1958,15 +1992,15 @@ prod_ticks <- pretty(c(0, max(prods_tot)))
 pct_ticks <- 100 * prod_ticks / tot_prod
 axis(side = 4, at = pct_ticks, labels = format(prod_ticks, big.mark = ","))
 mtext("NPP (gC.year-1))", side = 4, line = 3)
-
+# scatter plot of total production compared to reference
 if (ref_sim %in% c('no_virus_shunt', 'no_virus', 'no_virus_shunt_all') & reg=='trop'){
         if (ref_sim=='no_virus_shunt'){
                 shunts=c(0, 25, 50, 75,100)
         } else if (ref_sim=='no_virus'){
                 shunts=c(50, 60, 75, 90,100)
         } else if (ref_sim=='no_virus_shunt_all'){
-		shunts=c(0, 25, 50,60, 75,90,100)
-	}
+		         shunts=c(0, 25, 50,60, 75,90,100)
+	    }
         n_shunt=length(shunts)
         plot(shunts,prods0[1,1:n_shunt]*100/tot_prod, ylim=c(0, 1.05*max(prods0*100/tot_prod)), col="sandybrown", cex=3, pch=19)
         lines(shunts, prods0[1,1:n_shunt]*100/tot_prod, col="sandybrown", lwd=2)
@@ -1986,7 +2020,7 @@ saveRDS(surfaces*100/tot_surf_ocean,paste('area_partitioning_oligotrophic_',sca,
 
 barplot(prods0/surfaces, col=c("sandybrown","chocolate"), ylab='Productivity (gC.year-1.km-2))', beside=T, log='y')
 
-
+# violin plots of productivities within oligotrophic regiosn
 library('vioplot')
 par(mar=c(5.1,5, 1, 1))
 
@@ -2064,7 +2098,7 @@ dev.off()
 }
 
 
-
+# changes in surface area of increased and decreased productivity region (40S to 40N) and change in total primary production
 if (ref_sim %in% c('no_virus_shunt', 'no_virus_shunt_all')){
   areas_dec=NULL
   areas_inc=NULL
