@@ -58,16 +58,29 @@ For each simulations, run the post processing that will save outputs as `.rds` f
   - 6g,h: page 19 and 22 of `3D_darwin_maps_comparisons_oligotrophic_regions_trop_0_ind_ref-no_virus_shunt_all.pdf`
 - Figure 7
   - 7a: page 1 of `transect_position_oligotrophic_lat_transect.pdf`
-  - 7b,c,d: 
+  - 7b,c,d: page 71, 113, 70, 112, 67, 109 of `oligotrophic_lat_transect_darwin_maps_comparisons_log10_mol_ref-no_virus_shunt.pdf`
+  - 7e: page 1 of `transect_position_oligotrophic_lon_transect.pdf`
+  - 7f,g,h: page 71, 113, 70, 112, 67, 109 of `oligotrophic_lon_transect_darwin_maps_comparisons_log10_mol_ref-no_virus_shunt.pdf`
 - Figure S1
+  - S1a-h: pages 2,5,23,26,30,33,72,75 of `3D_darwin_maps_comparisons_deltas_bis_log10_mol_ref-virus_I.pdf`
 - Figure S2
+  - S2a-c: pages 62,57,54 of `3D_darwin_maps_comparisons_deltas_bis_log10_mol_ref-virus.pdf` 
 - Figure S3
-- Figure S4
+  - S3a-j: pages 90, 89, 231, 230, 104,103,145,144,138,137 of `3D_darwin_maps_comparisons_bis_0_mol_ref-no_virus.pdf` 
+- Figure S4: page 73 of `3D_darwin_maps_comparisons_deltas_bis_log10_mol_ref-no_virus_misc.pdf`
 - Figure S5
+  - S5a,b: pages 9 and 10 of `3D_darwin_maps_comparisons_new-prod_regions_log10_mol_ref-no_virus.pdf` 
 - Figure S6
+  - S6a-c: 206, 200, 194 of `3D_darwin_maps_comparisons_deltas_bis_log10_mol_ref-no_virus_shunt.pdf` 
 - Figure S7
+  - S7a-d: pages 20, 12, 8, 4 of `3D_darwin_maps_comparisons_new-prod_regions_bis_log10_mol_ref-no_virus.pdf` 
 - Figure S8
+  - S8a,b: pages 21 and 22 of `3D_darwin_maps_comparisons_oligotrophic_regions_trop_0_mol_ref-no_virus_shunt.pdf` 
 - Figure S9
+  - S9a: same as 7a
+  - 6b,c: pages 59, 94, 56, 91 of `oligotrophic_lat_transect_darwin_maps_comparisons_delta_log10_mol_ref-no_virus_shunt.pdf` 
+  - S9d: same as 7e
+  - 6e,f: pages 59, 94, 56, 91 of `oligotrophic_lon_transect_darwin_maps_comparisons_delta_log10_mol_ref-no_virus_shunt.pdf` 
 
 Note 1: color legends gradients are available after maps of all simualtions for all tracers
 Note 2: for log-ratios, CDF and PDF plots are availbale in the next page of the given map
