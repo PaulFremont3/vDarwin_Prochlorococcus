@@ -38,7 +38,7 @@ For each simulations, run the post processing that will save outputs as `.rds` f
   - `transect_position_*name*.pdf'`: transect position
   - `*name*_darwin_maps_comparisons_*sca*_*type*_ref-*ref_sim*.pdf'`: pdfs of model comparisons on the same scale
   - `*name*_darwin_maps_comparisons_delta_*sca*_*type*_ref-*ref_sim*.pdf'`: pdfs of comparisons of model to the reference/control simulation (% change or log-ratios)
-## 4. Figure data
+## 4. Figure panels
 - Figure 1
 - Figure 2
 - Figure 3
