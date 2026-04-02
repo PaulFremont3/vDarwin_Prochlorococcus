@@ -1,4 +1,4 @@
-To install vDarwin on your machine (mpi HPC necessary):
+To install vDarwin on your machine (openmpi HPC necessary):
 
 dependencies (or equivalent):
 
