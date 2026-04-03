@@ -293,7 +293,7 @@ if (save=='1'){
 cols=c('navyblue', "chocolate", 'sandybrown', 'grey')
 if (ref_sim=='no_virus' & type=='mol' & region=='world'){
   pdf('latitude_vs_mortality.pdf', width = wd, height = hg)
-  for (n in c('%Omort', '%Zmort', '%Vmort', 'LR_O', 'LR_Z', 'LR_V')){
+  for (n in c('%Omort', '%Zmort', '%Vmort', 'LR_O', 'LR_Z', 'LR_V','Mort', 'GR', 'VL' )){
 	  count=1
   	  for (suff in suffixes){
 		  suff_bis=suffixes_bis[count]
@@ -312,7 +312,9 @@ if (ref_sim=='no_virus' & type=='mol' & region=='world'){
 		  	ylims=c(0, 100)
 		  } else if (n %in% c('LR_O', 'LR_Z', 'LR_V')){
 		  	ylims=c(0, 0.5)
-		  }
+		  } else if (n %in% c('Mort', 'GR', 'VL')){
+            ylims=c(0, 0.81)
+          }
 		  plot(lat_vec[sel], morts[sel], xlab='', ylab='', pch=19, ylim=ylims, xlim=c(min(lat), max(lat)), col=cols[classes[sel]],  yaxt = "n", xaxt='n', main=suff_bis)
 		  axis(1, at = seq(-80, 80, by = 20), lwd = 0, lwd.ticks = 3, las = 1, cex.axis=2, mgp = c(3, 1.2, 0))
 		  axis(2, lwd = 0, lwd.ticks = 3, las = 1, cex.axis=2)
