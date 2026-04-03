@@ -2111,7 +2111,7 @@ dev.off()
 
 
 # changes in surface area of increased and decreased productivity region (40S to 40N) and change in total primary production
-if (ref_sim %in% c('no_virus_shunt', 'no_virus_shunt_all')){
+if (ref_sim %in% c('no_virus_shunt', 'no_virus_shunt_all') & region=='world'){
   areas_dec=NULL
   areas_inc=NULL
   areas_dec_5=NULL
