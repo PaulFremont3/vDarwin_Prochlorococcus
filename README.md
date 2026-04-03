@@ -3,7 +3,7 @@ This repository contains all code and data needed to reproduce the figures and t
 Frémont *et al.*, *Viral impacts on plankton standing stocks, primary productivity, and biogeochemistry in a model ocean*.
 
 ### Download
-`git clone https://github.com/PaulFremont3/vDarwin_productivity/`
+`git clone https://github.com/PaulFremont3/vDarwin_Prochlorococcus/`
 
 ### Tutorial
 The folder `run/` contains a tutorial on how to download and compile vDarwin. The folder `Simulations/` contain 1 subfolder per simulation that contain parameterization files for each simulations of the study. The folder `Post_processing/` contains scripts to post process model outputs data and create figure panels from the manuscript (pdf outputs). Each folder contains its own tutorial.
