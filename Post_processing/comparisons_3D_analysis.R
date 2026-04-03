@@ -442,7 +442,7 @@ for (n in names_tracers[ c(1:3, 5:12, 14, 21, 33:47)]){
 		}
 		if (n %in% c('GR', 'Mort', 'VL')){
 			template_map(min_lo, max_lo, min_lt, max_lt)
-			image(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], t,add = TRUE, useRaster = TRUE, col = colos, zlim = c(0, 0.85), main=n)
+			image(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], t,add = TRUE, useRaster = TRUE, col = colos, zlim = c(0, 0.81), main=n)
                         axis_map(min_lo, max_lo, min_lt, max_lt, step_lo, step_lt)
 		}
 		if (region=='aloha'){
