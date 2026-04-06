@@ -439,12 +439,27 @@ for (n in names_tracers[ c(1:3, 5:12, 14, 21, 33:47)]){
 		}
 		if (n %in% c('LR_O', 'LR_Z', 'LR_V')){
 			template_map(min_lo, max_lo, min_lt, max_lt)
-			image(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], t,add = TRUE, useRaster = TRUE, col = colos, zlim = c(0, 0.5), main=n)
+			if (region=='world'){
+                    mxz=0.5
+            } else if (region=='gradients'){
+                    mxz=0.18
+            } else if (region=='aloha'){
+                    mxz=0.28
+            }
+
+			image(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], t,add = TRUE, useRaster = TRUE, col = colos, zlim = c(0, mxz), main=n)
                 	axis_map(min_lo, max_lo, min_lt, max_lt, step_lo, step_lt)
 		}
 		if (n %in% c('GR', 'Mort', 'VL')){
 			template_map(min_lo, max_lo, min_lt, max_lt)
-			image(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], t,add = TRUE, useRaster = TRUE, col = colos, zlim = c(0, 0.81), main=n)
+			if (region=='world'){
+                    mxz=0.81
+            } else if (region=='gradients'){
+                    mxz=0.27
+            } else if (region=='aloha'){
+                    mxz=0.53
+            }
+			image(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], t,add = TRUE, useRaster = TRUE, col = colos, zlim = c(0, mxz), main=n)
                         axis_map(min_lo, max_lo, min_lt, max_lt, step_lo, step_lt)
 		}
 		if (region=='aloha'){
