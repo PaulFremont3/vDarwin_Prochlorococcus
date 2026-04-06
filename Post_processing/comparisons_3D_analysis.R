@@ -356,6 +356,21 @@ if (ref_sim=='no_virus' & type=='mol' & region=='world'){
 
 # plotting data on the same scale across compared simulations
 par(mar=c(5.1, 4.1, 4.1, 2.1))
+draw_loc=function(region){
+    if (region=='aloha'){
+            lon_g=202.5
+            lat_g=24.5
+            star(lon_g,lat_g, r=1, col="dodgerblue")
+    }
+    if( region=='gradients'){
+        lon_g=202 #360-158 (lon of gradients)
+        lats_g=seq(23.5, 43.5, 1)
+        lon_g_ind=which.min(abs(lon-lon_g))
+        lats_g_ind=sapply(lats_g, function(x, lt){which.min(abs(x-lt))}, lt=lat)
+        points(rep(lon_g_ind,length(lats_g_ind)) ,lats_g , pch=19, type='l', lwd=3)
+    }
+}
+
 if (depth=='int'){
 	if (region=='world'){
 		pdf(paste('3D_darwin_maps_comparisons_bis_',sca,'_',type,'_ref-',ref_sim,'.pdf', sep=''), width = wd, height = hg)
@@ -430,12 +445,14 @@ for (n in names_tracers[ c(1:3, 5:12, 14, 21, 33:47)]){
 		print(n)
 		print(zlim)
 		image(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], t,add = TRUE, useRaster = TRUE, col = colos, zlim = zlim, main=n)
-    		axis_map(min_lo, max_lo, min_lt, max_lt, step_lo, step_lt)
+    	axis_map(min_lo, max_lo, min_lt, max_lt, step_lo, step_lt)
+		draw_loc(region)
 
 		if (n=='%Inf'){
 		  template_map(min_lo, max_lo, min_lt, max_lt)
 		  image(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], t,add = TRUE, useRaster = TRUE, col = colos, zlim = zlim1, main=n)
-                  axis_map(min_lo, max_lo, min_lt, max_lt, step_lo, step_lt)
+          axis_map(min_lo, max_lo, min_lt, max_lt, step_lo, step_lt)
+		  draw_loc(region)
 		}
 		if (n %in% c('LR_O', 'LR_Z', 'LR_V')){
 			template_map(min_lo, max_lo, min_lt, max_lt)
@@ -448,7 +465,8 @@ for (n in names_tracers[ c(1:3, 5:12, 14, 21, 33:47)]){
             }
 
 			image(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], t,add = TRUE, useRaster = TRUE, col = colos, zlim = c(0, mxz), main=n)
-                	axis_map(min_lo, max_lo, min_lt, max_lt, step_lo, step_lt)
+            axis_map(min_lo, max_lo, min_lt, max_lt, step_lo, step_lt)
+			draw_loc(region)
 		}
 		if (n %in% c('GR', 'Mort', 'VL')){
 			template_map(min_lo, max_lo, min_lt, max_lt)
@@ -457,22 +475,11 @@ for (n in names_tracers[ c(1:3, 5:12, 14, 21, 33:47)]){
             } else if (region=='gradients'){
                     mxz=0.27
             } else if (region=='aloha'){
-                    mxz=0.53
+                    mxz=0.54
             }
 			image(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], t,add = TRUE, useRaster = TRUE, col = colos, zlim = c(0, mxz), main=n)
-                        axis_map(min_lo, max_lo, min_lt, max_lt, step_lo, step_lt)
-		}
-		if (region=='aloha'){
-			lon_g=202.5
-			lat_g=24.5
-			star(lon_g,lat_g, r=0.5, col="dodgerblue")
-		}
-		if( region=='gradients'){
-			lon_g=202 
-			lats_g=seq(23.5, 43.5, 1)
-			lon_g_ind=which.min(abs(lon-lon_g))
-			lats_g_ind=sapply(lats_g, function(x, lt){which.min(abs(x-lt))}, lt=lat)
-			points(rep(lon_g_ind,length(lats_g_ind)) ,lats_g , pch=19, type='l', lwd=3)
+            axis_map(min_lo, max_lo, min_lt, max_lt, step_lo, step_lt)
+			draw_loc(region)
 		}
 	}
 
