@@ -997,6 +997,7 @@ if (depth=='int'){
 colos=colorRampPalette(c("blue", "white", "red"))(100)
 
 for (suff in suffixes[1:ns]){
+	if (suff!='no_virus'){
         if (sca=='log10'){
                 ratio=log10(data_to_plot[[suff]][['Zooplankton']]/data_to_plot[[suff]][['Virus']])
         } else{
@@ -1087,7 +1088,7 @@ for (suff in suffixes[1:ns]){
                      col     = colos[i], border = NA)
         }
         text(x=legend_x+12, y=i+1, labels = signif(t1_max, 2))
-
+	}
 
 }
 dev.off()
