@@ -867,6 +867,7 @@ if (depth=='int'){
 colos=colorRampPalette(c("blue", "white", "red"))(100)
 for (suff in suffixes[1:ns]){
 	for (x in c('%', 'rate', 'flux')){
+	if (suff!= 'virus_shunt-100_no_I'){
         if (sca=='log10'){
 		if (x=='rate'){
         		ratio=log10(data_to_plot[[suff]][['LR_Z']]/data_to_plot[[suff]][['LR_V']])
@@ -916,7 +917,6 @@ for (suff in suffixes[1:ns]){
                 image(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], ratio,add = TRUE, useRaster = TRUE, col = colos, zlim = zlim, main=paste('delta ', n, sep=''))
                 axis_map(min_lo, max_lo, min_lt, max_lt, step_lo, step_lt)
                 contour(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], ratio_cont, levels=c(0,1), add=T, labels=0, lwd=2)
-
         } else{
                 mxa=max(c(ratio_p, ratio_n), na.rm=T)
                 if (mxa>10 | is.na(mxa)){
@@ -974,6 +974,7 @@ for (suff in suffixes[1:ns]){
     }
     text(x=legend_x+12, y=i+1, labels = signif(t1_max, 2))
 	text(x=legend_x,y=i+3, labels=paste('delta ',x , sep='')) 
+	}
 	}
 
 }
