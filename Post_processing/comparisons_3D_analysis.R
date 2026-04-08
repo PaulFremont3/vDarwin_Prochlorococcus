@@ -867,7 +867,7 @@ if (depth=='int'){
 colos=colorRampPalette(c("blue", "white", "red"))(100)
 for (suff in suffixes[1:ns]){
 	for (x in c('%', 'rate', 'flux')){
-	if (suff!= 'virus_shunt-100_no_I'){
+	if (!(suff %in% c('virus_shunt-100_no_I', 'no_virus'))){
         if (sca=='log10'){
 		if (x=='rate'){
         		ratio=log10(data_to_plot[[suff]][['LR_Z']]/data_to_plot[[suff]][['LR_V']])
