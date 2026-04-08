@@ -326,28 +326,42 @@ if (ref_sim=='no_virus' & type=='mol' & region=='world'){
   }
   dev.off()
   # latitude vs delta mortality plot
-  pdf('latitude_vs_delta_mortality.pdf', width = wd, height = hg)
-  count=1
+ pdf('latitude_vs_delta_mortality.pdf', width = wd, height = hg)
+ count=1
   for (suff in suffixes[1:(length(suffixes)-1)]){
-	  suff_bis=suffixes_bis[count]
-	  morts=as.vector(data_to_plot[[suff]][['%Zmort']]-data_to_plot[[suff]][['%Vmort']])
-          chl=as.vector(data_to_plot[[suff]][['chl']])
-          olig=chl<0.1 & chl>0.05
-          hyp_olig=chl<0.05 & chl>0
-          sel=!is.na(morts)
-          classes=rep(1,length(lat_vec))
-          classes[olig==T]=2
-          classes[hyp_olig==T]=3
-	  classes[abs(lat_vec)>40]=4
-          par(mar = c(5, 5.2, 2, 2))
-	  amax=max(abs(morts[sel]), na.rm=T)
-          plot(lat_vec[sel], morts[sel], xlab='', ylab='', pch=19,ylim=c(-amax, amax), xlim=c(min(lat), max(lat)), col=cols[classes[sel]],  yaxt = "n", xaxt='n', main=suff_bis)
-          axis(1, at = seq(-80, 80, by = 20), lwd = 0, lwd.ticks = 3, las = 1, cex.axis=2, mgp = c(3, 1.2, 0))
-          axis(2, lwd = 0, lwd.ticks = 3, las = 1, cex.axis=2)
-          box(lwd = 3)
-	  abline(h=0, lwd=3)
-          mtext('Latitude', side = 1, line = 3.5, cex = 1.6)
-          mtext("%Zmort-%Vmort", side = 2, line = 4, cex = 1.6)
+	  for (x in c('%', 'flux', 'rate')){
+	    suff_bis=suffixes_bis[count]
+	    if (x=='%'){
+	      morts=as.vector(data_to_plot[[suff]][['%Zmort']]-data_to_plot[[suff]][['%Vmort']])
+	    } else if (x=='flux'){
+	      morts=as.vector(data_to_plot[[suff]][['GR']]-data_to_plot[[suff]][['VL']])
+	    } else if (x=='rate'){
+	      morts=as.vector(data_to_plot[[suff]][['LR_Z']]-data_to_plot[[suff]][['LR_V']])
+	    }
+        chl=as.vector(data_to_plot[[suff]][['chl']])
+        olig=chl<0.1 & chl>0.05
+        hyp_olig=chl<0.05 & chl>0
+        sel=!is.na(morts)
+        classes=rep(1,length(lat_vec))
+        classes[olig==T]=2
+        classes[hyp_olig==T]=3
+	    classes[abs(lat_vec)>40]=4
+        par(mar = c(5, 5.2, 2, 2))
+	    amax=max(abs(morts[sel]), na.rm=T)
+        plot(lat_vec[sel], morts[sel], xlab='', ylab='', pch=19,ylim=c(-amax, amax), xlim=c(min(lat), max(lat)), col=cols[classes[sel]],  yaxt = "n", xaxt='n', main=suff_bis)
+        axis(1, at = seq(-80, 80, by = 20), lwd = 0, lwd.ticks = 3, las = 1, cex.axis=2, mgp = c(3, 1.2, 0))
+        axis(2, lwd = 0, lwd.ticks = 3, las = 1, cex.axis=2)
+        box(lwd = 3)
+	    abline(h=0, lwd=3)
+        mtext('Latitude', side = 1, line = 3.5, cex = 1.6)
+	    if (x=='%'){
+              mtext("%Zmort-%Vmort", side = 2, line = 4, cex = 1.6)
+	    } else if (x=='flux'){
+	      mtext("Zmort-Vmort flux", side = 2, line = 4, cex = 1.6)
+	    } else if (x=='rate'){
+              mtext("Zmort-Vmort rate", side = 2, line = 4, cex = 1.6)
+        }
+	  }
 	  count=count+1
   }
   dev.off()
@@ -790,6 +804,15 @@ for (suff in suffixes[1:ns]){
 	template_map(min_lo, max_lo, min_lt, max_lt)
 	image(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], delta,add = TRUE, useRaster = TRUE, col = colos, zlim = zlim, main=paste('delta Zmort-Vmort ', suff, sep=''))
 	axis_map(min_lo, max_lo, min_lt, max_lt, step_lo, step_lt)
+	
+	delta_cont=delta
+        delta_cont[delta>0]=1
+        delta_cont[delta<0]=0
+        template_map(min_lo, max_lo, min_lt, max_lt)
+        image(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], delta,add = TRUE, useRaster = TRUE, col = colos, zlim = zlim, main=paste('delta ', n, sep=''))
+        axis_map(min_lo, max_lo, min_lt, max_lt, step_lo, step_lt)
+        contour(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], delta_cont, levels=c(0,1), add=T, labels=0, lwd=2)
+
 	t1_min=-mxa
 	t1_max=mxa
 	legend_x <- 1       # x-position (right of map)
@@ -806,11 +829,28 @@ for (suff in suffixes[1:ns]){
              	col     = colos[i], border = NA)
 	}
 	text(x=legend_x+12, y=i+1, labels = signif(t1_max, 2))
+
+	if (sum(!is.na(as.vector(delta)))>10){
+                  d=density(delta[!is.na(delta)])
+                  mx_d=max(d$y)
+                  y_max_buffered <- mx_d * 1.1
+                  local({
+                  old_par <- par(no.readonly = TRUE)
+                  on.exit(par(old_par))
+                  par(mar = c(5.1, 4.1, 17.5, 2.1))
+                  plot(d, lwd = 2,xlab = "",ylab = "", xlim=zlim, xaxs = "i", yaxs="i", ylim=c(0, y_max_buffered))
+                  polygon(d, col = adjustcolor("grey", alpha.f = 0.6), border = NA)
+                  cdf=cumsum(d$y)/sum(d$y)
+                  points(d$x, cdf*y_max_buffered, type='l', lwd=9, col='#ff00ff')
+                  axis(4, at=c(0,y_max_buffered), labels=c(0,1))
+                  })
+        }
+
 }
 dev.off()
 
 
-# ratio between Z and V mortality
+# ratio ZV mortality
 if (depth=='int'){
         if (region=='world'){
                 pdf(paste('3D_darwin_maps_comparisons_ratios_ZV_mort_bis_',sca,'_',type,'_ref-',ref_sim,'.pdf', sep=''), width = wd, height = hg)
@@ -826,28 +866,57 @@ if (depth=='int'){
 }
 colos=colorRampPalette(c("blue", "white", "red"))(100)
 for (suff in suffixes[1:ns]){
+	for (x in c('%', 'rate', 'flux')){
         if (sca=='log10'){
-                ratio=log10(data_to_plot[[suff]][['%Zmort']]/data_to_plot[[suff]][['%Vmort']])
-        } else{
-                ratio_p=data_to_plot[[suff]][['%Zmort']]/data_to_plot[[suff]][['%Vmort']]
-                ratio_n=data_to_plot[[suff]][['%Vmort']]/data_to_plot[[suff]][['%Zmort']]
-        }
+		if (x=='rate'){
+        		ratio=log10(data_to_plot[[suff]][['LR_Z']]/data_to_plot[[suff]][['LR_V']])
+		} else if (x=='%'){
+			ratio=log10(data_to_plot[[suff]][['%Zmort']]/data_to_plot[[suff]][['%Vmort']])
+		} else if (x=='flux'){
+			ratio=log10(data_to_plot[[suff]][['GR']]/data_to_plot[[suff]][['VL']])
+		}
+	} else{
+		if (x=='rate'){
+			ratio=log10(data_to_plot[[suff]][['LR_Z']]/data_to_plot[[suff]][['LR_V']])
+                	ratio_p=data_to_plot[[suff]][['LR_Z']]/data_to_plot[[suff]][['LR_V']]
+                	ratio_n=data_to_plot[[suff]][['LR_V']]/data_to_plot[[suff]][['LR_Z']]
+		} else if (x=='flux'){
+			ratio=log10(data_to_plot[[suff]][['GR']]/data_to_plot[[suff]][['VL']])
+                        ratio_p=data_to_plot[[suff]][['GR']]/data_to_plot[[suff]][['VL']]
+                        ratio_n=data_to_plot[[suff]][['VL']]/data_to_plot[[suff]][['GR']]
+		} else if (x=='%'){
+			ratio=log10(data_to_plot[[suff]][['%Zmort']]/data_to_plot[[suff]][['%Vmort']])
+                        ratio_p=data_to_plot[[suff]][['%Zmort']]/data_to_plot[[suff]][['%Vmort']]
+                        ratio_n=data_to_plot[[suff]][['%Vmort']]/data_to_plot[[suff]][['%Zmort']]
+		}
+    }
 
         if (sca=='log10'){
                 mi=min(ratio, na.rm=T)
                 mx=max(ratio, na.rm=T)
                 mxa=max(abs(c(mi, mx)))
-		print(mxa)
-                if (mxa>1){
-                        mxa=1
-                        ratio[ratio>1]=1
-                        ratio[ratio< -1]=-1
-                }
-                zlim=c(-mxa, mxa)
-		        saveRDS(ratio, paste('log10_ratio_Z_V_mort_', suff,'.rds', sep=''))
+		if (mxa==Inf){
+		  mxa=9
+		}
+        if (mxa>2){
+            	mxa=2
+                ratio[ratio>2]=2
+                ratio[ratio< -2]=-2
+        }
+        zlim=c(-mxa, mxa)
+		saveRDS(ratio, paste('log10_ratio_Z_V_mort_', suff,'.rds', sep=''))
                 template_map(min_lo, max_lo, min_lt, max_lt)
                 image(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], ratio,add = TRUE, useRaster = TRUE, col = colos, zlim = zlim, main=paste('ratio Zmort/Vmort ', suff, sep=''))
                 axis_map(min_lo, max_lo, min_lt, max_lt, step_lo, step_lt)
+		ratio_cont=ratio
+                ratio_cont[ratio>0]=1
+                ratio_cont[ratio<0]=0
+
+                template_map(min_lo, max_lo, min_lt, max_lt)
+                image(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], ratio,add = TRUE, useRaster = TRUE, col = colos, zlim = zlim, main=paste('delta ', n, sep=''))
+                axis_map(min_lo, max_lo, min_lt, max_lt, step_lo, step_lt)
+                contour(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], ratio_cont, levels=c(0,1), add=T, labels=0, lwd=2)
+
         } else{
                 mxa=max(c(ratio_p, ratio_n), na.rm=T)
                 if (mxa>10 | is.na(mxa)){
@@ -862,30 +931,55 @@ for (suff in suffixes[1:ns]){
                 ratio_n[ratio_n<1]=NA
                 image(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], ratio_n,add = TRUE, useRaster = TRUE, col = colos[50:1], zlim = zlim, main=paste('ratio Zmort/Vmort ', suff, sep=''))
                 axis_map(min_lo, max_lo, min_lt, max_lt, step_lo, step_lt)
+		ratio_cont=ratio
+                ratio_cont[ratio>0]=1
+                ratio_cont[ratio<0]=0
+
+                template_map(min_lo, max_lo, min_lt, max_lt)
+                image(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], ratio,add = TRUE, useRaster = TRUE, col = colos, zlim = zlim, main=paste('delta ', n, sep=''))
+                axis_map(min_lo, max_lo, min_lt, max_lt, step_lo, step_lt)
+                contour(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], ratio_cont, levels=c(0,1), add=T, labels=0, lwd=2)
         }
 
-        t1_min=-mxa
-        t1_max=mxa
-        legend_x <- 1       # x-position (right of map)
+	if (sum(!is.na(as.vector(ratio)))>10){
+                  d=density(ratio[!is.na(ratio)])
+		  mx_d=max(d$y)
+                  y_max_buffered <- mx_d * 1.1
+                  local({
+                  old_par <- par(no.readonly = TRUE)
+                  on.exit(par(old_par))
+                  par(mar = c(5.1, 4.1, 17.5, 2.1))
+                  plot(d, lwd = 2,xlab = "",ylab = "", xlim=zlim, xaxs = "i", yaxs="i", ylim=c(0, y_max_buffered))
+                  polygon(d, col = adjustcolor("grey", alpha.f = 0.6), border = NA)
+                  cdf=cumsum(d$y)/sum(d$y)
+                  points(d$x, cdf*y_max_buffered, type='l', lwd=9, col='#ff00ff')
+                  axis(4, at=c(0,y_max_buffered), labels=c(0,1))
+          	  })
+	}
 
-        # 3️⃣ Draw the gradient as tiny rectangles
-        # Draw gradient as stacked rectangles
-        plot(0,0, xlim=c(0, 60), ylim=c(0, 105), col='white', yaxt='n', xaxt='n',xlab='', ylab='', bty='n')
+    t1_min=-mxa
+    t1_max=mxa
+    legend_x <- 1       # x-position (right of map)
 
-        text(x=legend_x+12, y=0, labels = signif(t1_min, 2))
-        for (i in 1:length(colos)){
-                rect(xleft = legend_x, xright = legend_x + 10,
-                     ybottom = i,
-                     ytop    = i+1,
-                     col     = colos[i], border = NA)
-        }
-        text(x=legend_x+12, y=i+1, labels = signif(t1_max, 2))
+    # 3️⃣ Draw the gradient as tiny rectangles
+    # Draw gradient as stacked rectangles
+    plot(0,0, xlim=c(0, 60), ylim=c(0, 105), col='white', yaxt='n', xaxt='n',xlab='', ylab='', bty='n')
 
+    text(x=legend_x+12, y=0, labels = signif(t1_min, 2))
+    for (i in 1:length(colos)){
+            rect(xleft = legend_x, xright = legend_x + 10,
+                 ybottom = i,
+                 ytop    = i+1,
+                 col     = colos[i], border = NA)
+    }
+    text(x=legend_x+12, y=i+1, labels = signif(t1_max, 2))
+	text(x=legend_x,y=i+3, labels=paste('delta ',x , sep='')) 
+	}
 
 }
 dev.off()
 
-# ratios of Z and V abundances
+# ratio Z over V
 if (depth=='int'){
         if (region=='world'){
                 pdf(paste('3D_darwin_maps_comparisons_ratios_ZV_bis_',sca,'_',type,'_ref-',ref_sim,'.pdf', sep=''), width = wd, height = hg)
@@ -905,7 +999,8 @@ for (suff in suffixes[1:ns]){
         if (sca=='log10'){
                 ratio=log10(data_to_plot[[suff]][['Zooplankton']]/data_to_plot[[suff]][['Virus']])
         } else{
-                ratio_p=data_to_plot[[suff]][['Zooplankton']]/data_to_plot[[suff]][['Virus']]
+                ratio=log10(data_to_plot[[suff]][['Zooplankton']]/data_to_plot[[suff]][['Virus']])
+		ratio_p=data_to_plot[[suff]][['Zooplankton']]/data_to_plot[[suff]][['Virus']]
                 ratio_n=data_to_plot[[suff]][['Virus']]/data_to_plot[[suff]][['Zooplankton']]
         }
 
@@ -923,6 +1018,15 @@ for (suff in suffixes[1:ns]){
 		template_map(min_lo, max_lo, min_lt, max_lt)
                 image(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], ratio,add = TRUE, useRaster = TRUE, col = colos, zlim = zlim, main=paste('ratio Zmort/Vmort ', suff, sep=''))
                 axis_map(min_lo, max_lo, min_lt, max_lt, step_lo, step_lt)
+		ratio_cont=ratio
+                ratio_cont[ratio>0]=1
+                ratio_cont[ratio<0]=0
+
+                template_map(min_lo, max_lo, min_lt, max_lt)
+                image(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], ratio,add = TRUE, useRaster = TRUE, col = colos, zlim = zlim, main=paste('delta ', n, sep=''))
+                axis_map(min_lo, max_lo, min_lt, max_lt, step_lo, step_lt)
+                contour(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], ratio_cont, levels=c(0,1), add=T, labels=0, lwd=2)
+
         } else{
                 mxa=max(c(ratio_p, ratio_n), na.rm=T)
                 print(mxa)
@@ -938,7 +1042,33 @@ for (suff in suffixes[1:ns]){
                 ratio_n[ratio_n<1]=NA
                 image(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], ratio_n,add = TRUE, useRaster = TRUE, col = colos[50:1], zlim = zlim, main=paste('ratio Zmort/Vmort ', suff, sep=''))
                 axis_map(min_lo, max_lo, min_lt, max_lt, step_lo, step_lt)
+		ratio_cont=ratio
+                ratio_cont[ratio>0]=1
+                ratio_cont[ratio<0]=0
+
+                template_map(min_lo, max_lo, min_lt, max_lt)
+                image(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], ratio,add = TRUE, useRaster = TRUE, col = colos, zlim = zlim, main=paste('delta ', n, sep=''))
+                axis_map(min_lo, max_lo, min_lt, max_lt, step_lo, step_lt)
+                contour(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], ratio_cont, levels=c(0,1), add=T, labels=0, lwd=2)
+
         }
+
+	if (sum(!is.na(as.vector(ratio)))>10){
+                  d=density(ratio[!is.na(ratio)])
+                  mx_d=max(d$y)
+                  y_max_buffered <- mx_d * 1.1
+                  local({
+                  old_par <- par(no.readonly = TRUE)
+                  on.exit(par(old_par))
+                  par(mar = c(5.1, 4.1, 17.5, 2.1))
+                  plot(d, lwd = 2,xlab = "",ylab = "", xlim=zlim, xaxs = "i", yaxs="i", ylim=c(0, y_max_buffered))
+                  polygon(d, col = adjustcolor("grey", alpha.f = 0.6), border = NA)
+                  cdf=cumsum(d$y)/sum(d$y)
+                  points(d$x, cdf*y_max_buffered, type='l', lwd=9, col='#ff00ff')
+                  axis(4, at=c(0,y_max_buffered), labels=c(0,1))
+                  })
+        }
+
 
         t1_min=-mxa
         t1_max=mxa
