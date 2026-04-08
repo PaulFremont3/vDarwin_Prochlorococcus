@@ -1097,7 +1097,7 @@ for (suff in suffixes[1:ns]){
 
         }
 
-	if (sum(!is.na(as.vector(ratio)))>10){
+	if (sum(!is.na(as.vector(ratio)))>10 & length(unique(ratio[!is.na(ratio)]))>10){
                   d=density(ratio[!is.na(ratio)])
                   mx_d=max(d$y)
                   y_max_buffered <- mx_d * 1.1
