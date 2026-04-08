@@ -348,7 +348,7 @@ if (ref_sim=='no_virus' & type=='mol' & region=='world'){
 	    classes[abs(lat_vec)>40]=4
         par(mar = c(5, 5.2, 2, 2))
 	    amax=max(abs(morts[sel]), na.rm=T)
-        plot(lat_vec[sel], morts[sel], xlab='', ylab='', pch=19,ylim=c(-amax, amax), xlim=c(min(lat), max(lat)), col=cols[classes[sel]],  yaxt = "n", xaxt='n', main=suff_bis)
+        plot(lat_vec[sel], morts[sel], xlab='', ylab='', pch=19,ylim=c(-amax, amax), xlim=c(min(lat), max(lat)), col=cols[classes[sel]],  yaxt = "n", xaxt='n', main=suff_bis, yaxs='i', xaxs='i')
         axis(1, at = seq(-80, 80, by = 20), lwd = 0, lwd.ticks = 3, las = 1, cex.axis=2, mgp = c(3, 1.2, 0))
         axis(2, lwd = 0, lwd.ticks = 3, las = 1, cex.axis=2)
         box(lwd = 3)
@@ -363,6 +363,45 @@ if (ref_sim=='no_virus' & type=='mol' & region=='world'){
         }
 	  }
 	  count=count+1
+  }
+  for (suff in suffixes[1:(length(suffixes)-1)]){
+          for (x in c('%', 'flux', 'rate')){
+            suff_bis=suffixes_bis[count]
+            if (x=='%'){
+              morts=as.vector(log10(data_to_plot[[suff]][['%Zmort']])-log10(data_to_plot[[suff]][['%Vmort']]))
+            } else if (x=='flux'){
+              morts=as.vector(log10(data_to_plot[[suff]][['GR']])-log10(data_to_plot[[suff]][['VL']]))
+            } else if (x=='rate'){
+              morts=as.vector(log10(data_to_plot[[suff]][['LR_Z']])-log10(data_to_plot[[suff]][['LR_V']]))
+            }
+            chl=as.vector(data_to_plot[[suff]][['chl']])
+            olig=chl<0.1 & chl>0.05
+            hyp_olig=chl<0.05 & chl>0
+            sel=!is.na(morts)
+            classes=rep(1,length(lat_vec))
+            classes[olig==T]=2
+            classes[hyp_olig==T]=3
+            classes[abs(lat_vec)>40]=4
+          #par(lwd = 2, las = 1)
+	    morts[morts>2]=2
+	    morts[morts<-2]=-2
+            par(mar = c(5, 5.2, 2, 2))
+            amax=max(abs(morts[sel]), na.rm=T)
+            plot(lat_vec[sel], morts[sel], xlab='', ylab='', pch=19,ylim=c(-2, 2), xlim=c(min_lt, max_lt), col=cols[classes[sel]],  yaxt = "n", xaxt='n', main=suff_bis,  yaxs = "i", xaxs='i')
+            axis(1, at = seq(-80, 80, by = 20), lwd = 0, lwd.ticks = 3, las = 1, cex.axis=2, mgp = c(3, 1.2, 0))
+            axis(2, lwd = 0, lwd.ticks = 3, las = 1, cex.axis=2)
+            box(lwd = 3)
+            abline(h=0, lwd=3)
+            mtext('Latitude', side = 1, line = 3.5, cex = 1.6)
+            if (x=='%'){
+              mtext("log10(%Zmort/%Vmort)", side = 2, line = 4, cex = 1.6)
+            } else if (x=='flux'){
+              mtext("log10(Zmort flux/Vmort flux)", side = 2, line = 4, cex = 1.6)
+            } else if (x=='rate'){
+              mtext("log10(Zmort rate/Vmort rate)", side = 2, line = 4, cex = 1.6)
+            }
+          }
+          count=count+1
   }
   dev.off()
 }
