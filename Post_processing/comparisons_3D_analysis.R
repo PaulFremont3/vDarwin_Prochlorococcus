@@ -936,7 +936,9 @@ for (suff in suffixes[1:ns]){
                 ratio_cont[ratio<0]=0
 
                 template_map(min_lo, max_lo, min_lt, max_lt)
-                image(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], ratio,add = TRUE, useRaster = TRUE, col = colos, zlim = zlim, main=paste('delta ', n, sep=''))
+                image(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], ratio_p,add = TRUE, useRaster = TRUE, col = colos[51:100], zlim = zlim, main=paste('ratio Zmort/Vmort ', suff, sep=''))
+                image(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], ratio_n,add = TRUE, useRaster = TRUE, col = colos[50:1], zlim = zlim, main=paste('ratio Zmort/Vmort ', suff, sep=''))
+                axis_map(min_lo, max_lo, min_lt, max_lt, step_lo, step_lt)
                 axis_map(min_lo, max_lo, min_lt, max_lt, step_lo, step_lt)
                 contour(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], ratio_cont, levels=c(0,1), add=T, labels=0, lwd=2)
         }
@@ -1040,16 +1042,17 @@ for (suff in suffixes[1:ns]){
                 zlim=c(1, mxa)
                 template_map(min_lo, max_lo, min_lt, max_lt)
                 ratio_p[ratio_p<1]=NA
-                image(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], ratio_p,add = TRUE, useRaster = TRUE, col = colos[51:100], zlim = zlim, main=paste('ratio Zmort/Vmort ', suff, sep=''))
+                image(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], ratio_p,add = TRUE, useRaster = TRUE, col = colos[51:100], zlim = zlim, main=paste('ratio Z/V ', suff, sep=''))
                 ratio_n[ratio_n<1]=NA
-                image(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], ratio_n,add = TRUE, useRaster = TRUE, col = colos[50:1], zlim = zlim, main=paste('ratio Zmort/Vmort ', suff, sep=''))
+                image(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], ratio_n,add = TRUE, useRaster = TRUE, col = colos[50:1], zlim = zlim, main=paste('ratio Z/V ', suff, sep=''))
                 axis_map(min_lo, max_lo, min_lt, max_lt, step_lo, step_lt)
 		ratio_cont=ratio
                 ratio_cont[ratio>0]=1
                 ratio_cont[ratio<0]=0
 
                 template_map(min_lo, max_lo, min_lt, max_lt)
-                image(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], ratio,add = TRUE, useRaster = TRUE, col = colos, zlim = zlim, main=paste('delta ', n, sep=''))
+                image(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], ratio_p,add = TRUE, useRaster = TRUE, col = colos[51:100], zlim = zlim, main=paste('ratio Z/V ', suff, sep=''))
+                image(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], ratio_n,add = TRUE, useRaster = TRUE, col = colos[50:1], zlim = zlim, main=paste('ratio Z/V ', suff, sep=''))
                 axis_map(min_lo, max_lo, min_lt, max_lt, step_lo, step_lt)
                 contour(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], ratio_cont, levels=c(0,1), add=T, labels=0, lwd=2)
 
