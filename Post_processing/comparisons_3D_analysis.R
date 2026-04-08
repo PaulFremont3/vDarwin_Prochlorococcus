@@ -382,9 +382,8 @@ if (ref_sim=='no_virus' & type=='mol' & region=='world'){
             classes[olig==T]=2
             classes[hyp_olig==T]=3
             classes[abs(lat_vec)>40]=4
-          #par(lwd = 2, las = 1)
-	    morts[morts>2]=2
-	    morts[morts<-2]=-2
+	    	morts[morts>2]=2
+	    	morts[morts<-2]=-2
             par(mar = c(5, 5.2, 2, 2))
             amax=max(abs(morts[sel]), na.rm=T)
             plot(lat_vec[sel], morts[sel], xlab='', ylab='', pch=19,ylim=c(-2, 2), xlim=c(min_lt, max_lt), col=cols[classes[sel]],  yaxt = "n", xaxt='n', main=suff_bis,  yaxs = "i", xaxs='i')
@@ -559,7 +558,7 @@ for (n in names_tracers[ c(1:3, 5:12, 14, 21, 33:47)]){
     	plot(0,0, xlim=c(0, 60), ylim=c(0, 105), col='white', yaxt='n', xaxt='n',
         	 xlab='', ylab='', bty='n')
     	
-	text(x=legend_x+12, y=0, labels = signif(t1_min, 2))
+		text(x=legend_x+12, y=0, labels = signif(t1_min, 2))
     	for (i in 1:length(colos)){
       		rect(xleft = legend_x, xright = legend_x + 10,
           	ybottom = i,
@@ -575,12 +574,12 @@ for (n in names_tracers[ c(1:3, 5:12, 14, 21, 33:47)]){
     	text(x=legend_x,y=i+3, labels=n )
 
 
-	# scale them to the gradient range
-	scale_to_y <- function(val, minv, maxv, ncols){
+		# scale them to the gradient range
+		scale_to_y <- function(val, minv, maxv, ncols){
     		return(1 + (val - minv) / (maxv - minv) * (ncols - 1))
-	}
+		}
 
-	make_ticks=function(ticks_vals, tick_labels, colos, n, t1_min, t1_max){
+		make_ticks=function(ticks_vals, tick_labels, colos, n, t1_min, t1_max){
 
 		ticks_pos <- scale_to_y(ticks_vals, t1_min, t1_max, length(colos))
 		# draw the ticks
@@ -610,12 +609,12 @@ if (sca=='0' & type=='mol' & region=='world'){
   for (suff in suffixes[1:ns]){
   	  chl=as.vector(data_to_plot[[suff]][['chl']])
 	  olig=chl<0.1 & chl>0.05
-          hyp_olig=chl<0.05 & chl>0
+      hyp_olig=chl<0.05 & chl>0
 
-          classes=rep(1,length(chl))
-          classes[olig==T]=2
-          classes[hyp_olig==T]=3
-          classes[abs(lat_vec)>40]=4
+      classes=rep(1,length(chl))
+      classes[olig==T]=2
+      classes[hyp_olig==T]=3
+      classes[abs(lat_vec)>40]=4
 
 	  pinf=as.vector(data_to_plot[[suff]][['%Inf']])
 	  LR_V=as.vector(data_to_plot[[suff]][['LR_V']])
@@ -626,32 +625,32 @@ if (sca=='0' & type=='mol' & region=='world'){
 	  co=cor.test(pinf, LR_V)
 	  plot(pinf, LR_V,  main=paste(suff,'\n','cor=',signif(co$estimate, 2), ' p.value=',signif(co$p.value,2) ,sep=''), pch=19, xaxt='n', yaxt="n", ylab='', xlab='')
 	  axis(1,  lwd = 0, lwd.ticks = 3, las = 1, cex.axis=2, mgp = c(3, 1.2, 0))
-          axis(2, lwd = 0, lwd.ticks = 3, las = 1, cex.axis=2)
-          box(lwd = 3)
+      axis(2, lwd = 0, lwd.ticks = 3, las = 1, cex.axis=2)
+      box(lwd = 3)
 
 	  pinf=as.vector(data_to_plot[[suff]][['%Inf']])
-          LV=as.vector(data_to_plot[[suff]][['VL']])
+      LV=as.vector(data_to_plot[[suff]][['VL']])
 
-          sel=!is.na(pinf) & !is.na(LV)
-          pinf=pinf[sel]
-          LV=LV[sel]
-          co=cor.test(pinf, LV)
-          plot(pinf, LV,  main=paste(suff,'\n','cor=',signif(co$estimate, 2), ' p.value=',signif(co$p.value,2) ,sep=''), pch=19, xaxt='n', yaxt="n", ylab='', xlab='')
-          axis(1,  lwd = 0, lwd.ticks = 3, las = 1, cex.axis=2, mgp = c(3, 1.2, 0))
-          axis(2, lwd = 0, lwd.ticks = 3, las = 1, cex.axis=2)
-          box(lwd = 3)
+       sel=!is.na(pinf) & !is.na(LV)
+       pinf=pinf[sel]
+       LV=LV[sel]
+       co=cor.test(pinf, LV)
+       plot(pinf, LV,  main=paste(suff,'\n','cor=',signif(co$estimate, 2), ' p.value=',signif(co$p.value,2) ,sep=''), pch=19, xaxt='n', yaxt="n", ylab='', xlab='')
+       axis(1,  lwd = 0, lwd.ticks = 3, las = 1, cex.axis=2, mgp = c(3, 1.2, 0))
+       axis(2, lwd = 0, lwd.ticks = 3, las = 1, cex.axis=2)
+       box(lwd = 3)
 
-          pinf=as.vector(data_to_plot[[suff]][['%Inf']])
-	  pvmort=as.vector(data_to_plot[[suff]][['%Vmort']])
+       pinf=as.vector(data_to_plot[[suff]][['%Inf']])
+	   pvmort=as.vector(data_to_plot[[suff]][['%Vmort']])
 
-          sel=!is.na(pinf) & !is.na(pvmort)
-          pinf=pinf[sel]
-          pvmort=pvmort[sel]
-          co=cor.test(pinf, pvmort)
-          plot(pinf, pvmort,  main=paste(suff,'\n','cor=',signif(co$estimate, 2), ' p.value=',signif(co$p.value,2) ,sep=''), pch=19, xaxt='n', yaxt="n", ylab='', xlab='')
-          axis(1,  lwd = 0, lwd.ticks = 3, las = 1, cex.axis=2, mgp = c(3, 1.2, 0))
-          axis(2, lwd = 0, lwd.ticks = 3, las = 1, cex.axis=2)
-          box(lwd = 3)
+      sel=!is.na(pinf) & !is.na(pvmort)
+      pinf=pinf[sel]
+      pvmort=pvmort[sel]
+      co=cor.test(pinf, pvmort)
+      plot(pinf, pvmort,  main=paste(suff,'\n','cor=',signif(co$estimate, 2), ' p.value=',signif(co$p.value,2) ,sep=''), pch=19, xaxt='n', yaxt="n", ylab='', xlab='')
+      axis(1,  lwd = 0, lwd.ticks = 3, las = 1, cex.axis=2, mgp = c(3, 1.2, 0))
+      axis(2, lwd = 0, lwd.ticks = 3, las = 1, cex.axis=2)
+      box(lwd = 3)
   }
   dev.off()
 
@@ -845,12 +844,12 @@ for (suff in suffixes[1:ns]){
 	axis_map(min_lo, max_lo, min_lt, max_lt, step_lo, step_lt)
 	
 	delta_cont=delta
-        delta_cont[delta>0]=1
-        delta_cont[delta<0]=0
-        template_map(min_lo, max_lo, min_lt, max_lt)
-        image(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], delta,add = TRUE, useRaster = TRUE, col = colos, zlim = zlim, main=paste('delta ', n, sep=''))
-        axis_map(min_lo, max_lo, min_lt, max_lt, step_lo, step_lt)
-        contour(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], delta_cont, levels=c(0,1), add=T, labels=0, lwd=2)
+    delta_cont[delta>0]=1
+    delta_cont[delta<0]=0
+    template_map(min_lo, max_lo, min_lt, max_lt)
+    image(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], delta,add = TRUE, useRaster = TRUE, col = colos, zlim = zlim, main=paste('delta ', n, sep=''))
+    axis_map(min_lo, max_lo, min_lt, max_lt, step_lo, step_lt)
+    contour(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], delta_cont, levels=c(0,1), add=T, labels=0, lwd=2)
 
 	t1_min=-mxa
 	t1_max=mxa
@@ -883,7 +882,7 @@ for (suff in suffixes[1:ns]){
                   points(d$x, cdf*y_max_buffered, type='l', lwd=9, col='#ff00ff')
                   axis(4, at=c(0,y_max_buffered), labels=c(0,1))
                   })
-        }
+    
 
 }
 dev.off()
@@ -935,27 +934,27 @@ for (suff in suffixes[1:ns]){
                 mi=min(ratio, na.rm=T)
                 mx=max(ratio, na.rm=T)
                 mxa=max(abs(c(mi, mx)))
-		if (mxa==Inf){
-		  mxa=9
-		}
-        if (mxa>2){
-            	mxa=2
-                ratio[ratio>2]=2
-                ratio[ratio< -2]=-2
-        }
-        zlim=c(-mxa, mxa)
-		saveRDS(ratio, paste('log10_ratio_Z_V_mort_', suff,'.rds', sep=''))
-                template_map(min_lo, max_lo, min_lt, max_lt)
-                image(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], ratio,add = TRUE, useRaster = TRUE, col = colos, zlim = zlim, main=paste('ratio Zmort/Vmort ', suff, sep=''))
-                axis_map(min_lo, max_lo, min_lt, max_lt, step_lo, step_lt)
-		ratio_cont=ratio
-                ratio_cont[ratio>0]=1
-                ratio_cont[ratio<0]=0
+			if (mxa==Inf){
+		  		mxa=9
+			}
+        	if (mxa>2){
+            		mxa=2
+                	ratio[ratio>2]=2
+                	ratio[ratio< -2]=-2
+        	}
+        	zlim=c(-mxa, mxa)
+			saveRDS(ratio, paste('log10_ratio_Z_V_mort_', suff,'.rds', sep=''))
+        	template_map(min_lo, max_lo, min_lt, max_lt)
+        	image(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], ratio,add = TRUE, useRaster = TRUE, col = colos, zlim = zlim, main=paste('ratio Zmort/Vmort ', suff, sep=''))
+        	axis_map(min_lo, max_lo, min_lt, max_lt, step_lo, step_lt)
+			ratio_cont=ratio
+        	ratio_cont[ratio>0]=1
+        	ratio_cont[ratio<0]=0
 
-                template_map(min_lo, max_lo, min_lt, max_lt)
-                image(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], ratio,add = TRUE, useRaster = TRUE, col = colos, zlim = zlim, main=paste('delta ', n, sep=''))
-                axis_map(min_lo, max_lo, min_lt, max_lt, step_lo, step_lt)
-                contour(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], ratio_cont, levels=c(0,1), add=T, labels=0, lwd=2)
+        	template_map(min_lo, max_lo, min_lt, max_lt)
+        	image(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], ratio,add = TRUE, useRaster = TRUE, col = colos, zlim = zlim, main=paste('delta ', n, sep=''))
+        	axis_map(min_lo, max_lo, min_lt, max_lt, step_lo, step_lt)
+        	contour(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], ratio_cont, levels=c(0,1), add=T, labels=0, lwd=2)
         } else{
                 mxa=max(c(ratio_p, ratio_n), na.rm=T)
                 if (mxa>10 | is.na(mxa)){
@@ -970,7 +969,7 @@ for (suff in suffixes[1:ns]){
                 ratio_n[ratio_n<1]=NA
                 image(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], ratio_n,add = TRUE, useRaster = TRUE, col = colos[50:1], zlim = zlim, main=paste('ratio Zmort/Vmort ', suff, sep=''))
                 axis_map(min_lo, max_lo, min_lt, max_lt, step_lo, step_lt)
-		ratio_cont=ratio
+				ratio_cont=ratio
                 ratio_cont[ratio>0]=1
                 ratio_cont[ratio<0]=0
 
@@ -984,7 +983,7 @@ for (suff in suffixes[1:ns]){
 
 	if (sum(!is.na(as.vector(ratio)))>10){
                   d=density(ratio[!is.na(ratio)])
-		  mx_d=max(d$y)
+		  		  mx_d=max(d$y)
                   y_max_buffered <- mx_d * 1.1
                   local({
                   old_par <- par(no.readonly = TRUE)
@@ -1058,10 +1057,10 @@ for (suff in suffixes[1:ns]){
                         ratio[ratio< -2]=-2
                 }
                 zlim=c(-mxa, mxa)
-		template_map(min_lo, max_lo, min_lt, max_lt)
+				template_map(min_lo, max_lo, min_lt, max_lt)
                 image(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], ratio,add = TRUE, useRaster = TRUE, col = colos, zlim = zlim, main=paste('ratio Zmort/Vmort ', suff, sep=''))
                 axis_map(min_lo, max_lo, min_lt, max_lt, step_lo, step_lt)
-		ratio_cont=ratio
+				ratio_cont=ratio
                 ratio_cont[ratio>0]=1
                 ratio_cont[ratio<0]=0
 
@@ -1085,7 +1084,7 @@ for (suff in suffixes[1:ns]){
                 ratio_n[ratio_n<1]=NA
                 image(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], ratio_n,add = TRUE, useRaster = TRUE, col = colos[50:1], zlim = zlim, main=paste('ratio Z/V ', suff, sep=''))
                 axis_map(min_lo, max_lo, min_lt, max_lt, step_lo, step_lt)
-		ratio_cont=ratio
+				ratio_cont=ratio
                 ratio_cont[ratio>0]=1
                 ratio_cont[ratio<0]=0
 
