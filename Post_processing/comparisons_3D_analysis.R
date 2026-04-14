@@ -347,9 +347,9 @@ pdf('latitude_vs_mortality_bis.pdf', width = wd, height = hg)
                   } else if (n %in% c('Mort', 'GR', 'VL')){
                         ylims=c(0, 0.81)
                   }
-                  plot(lat_vec[sel], morts[sel], xlab='', ylab='', pch=19, ylim=ylims, xlim=c(min(lat), max(lat)), col=cols[classes[sel]],  yaxt = "n", xaxt='n', main=suff_bis)
+                  plot(lat_vec[sel], 100-morts[sel], xlab='', ylab='', pch=19, ylim=ylims, xlim=c(min(lat), max(lat)), col=cols[classes[sel]],  yaxt = "n", xaxt='n', main=suff_bis)
                   ticks <- axTicks(4)
-                  axis(4, lwd = 0, at=ticks,labels = -ticks,lwd.ticks = 3, las = 1, cex.axis=2)
+                  axis(4, lwd = 0, at=ticks,labels = rev(ticks),lwd.ticks = 3, las = 1, cex.axis=2)
 		  box(lwd = 3)
                   mtext('Latitude', side = 1, line = 3.5, cex = 1.6)
                   mtext(n, side = 4, line = 4.5, cex = 1.6)
