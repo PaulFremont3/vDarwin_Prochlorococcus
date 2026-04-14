@@ -325,6 +325,38 @@ if (ref_sim=='no_virus' & type=='mol' & region=='world'){
 	  }
   }
   dev.off()
+pdf('latitude_vs_mortality_bis.pdf', width = wd, height = hg)
+  for (n in c('%Omort', '%Zmort', '%Vmort', 'LR_O', 'LR_Z', 'LR_V', 'Mort', 'GR', 'VL')){
+          count=1
+          for (suff in suffixes){
+                  suff_bis=suffixes_bis[count]
+                  morts=as.vector(data_to_plot[[suff]][[n]])
+                  chl=as.vector(data_to_plot[[suff]][['chl']])
+                  olig=chl<0.1 & chl>0.05
+                  hyp_olig=chl<0.05 & chl>0
+                  sel=!is.na(morts)
+                  classes=rep(1,length(lat_vec))
+                  classes[olig==T]=2
+                  classes[hyp_olig==T]=3
+                  classes[abs(lat_vec)>40]=4
+                  par(mar = c(5, 1, 2, 6))
+		  if (n %in% c('%Omort', '%Zmort', '%Vmort')){
+                        ylims=c(0, 100)
+                  } else if (n %in% c('LR_O', 'LR_Z', 'LR_V')){
+                        ylims=c(0, 0.5)
+                  } else if (n %in% c('Mort', 'GR', 'VL')){
+                        ylims=c(0, 0.81)
+                  }
+                  plot(lat_vec[sel], morts[sel], xlab='', ylab='', pch=19, ylim=ylims, xlim=c(min(lat), max(lat)), col=cols[classes[sel]],  yaxt = "n", xaxt='n', main=suff_bis)
+                  ticks <- axTicks(4)
+                  axis(4, lwd = 0, at=ticks,labels = -ticks,lwd.ticks = 3, las = 1, cex.axis=2)
+		  box(lwd = 3)
+                  mtext('Latitude', side = 1, line = 3.5, cex = 1.6)
+                  mtext(n, side = 4, line = 4.5, cex = 1.6)
+                  count=count+1
+          }
+  }
+  dev.off()
   # latitude vs delta mortality plots
 pdf('latitude_vs_delta_mortality.pdf', width = wd, height = hg)
   count=1
