@@ -216,7 +216,7 @@ for (suff in suffixes){
 }
 
 # variables that are plotted in log10 scales (when sca='log10')
-log10_vars=c('Total_P','Susceptible', 'Infected','Resistant',  'Zooplankton',  'Virus', 'NPP', 'GR_S', 'GR_I', 'VL', 'TDN', 'Mort_S', 'Mort_I', 'Mort', 'LR_Z', 'LR_V', 'LR_O', 'GR', 'DIN', 'chl', 'NO3')
+log10_vars=c('Total_P','Susceptible', 'Infected','Resistant',  'Zooplankton',  'Virus', 'NPP', 'GR_S', 'GR_I', 'VL', 'TDN', 'Mort_S', 'Mort_I', 'Mort', 'LR_Z', 'LR_V', 'LR_O', 'GR', 'DIN', 'chl', 'NO3', 'PO4', 'FeT')
 # compute time and depth average in save mode
 if (save=='1'){
   for (n in names_tracers){
@@ -468,7 +468,7 @@ if (depth=='int'){
 		pdf(paste('3D_darwin_maps_comparisons_bis_',sca,'_',type,'_depth',de,'_', region,'_ref-',ref_sim,'.pdf', sep=''), width = wd, height = hg)
 	}	
 }
-for (n in names_tracers[ c(1:3, 5:12, 14, 21, 33:47)]){
+for (n in names_tracers[ c(1:3, 5:12, 14, 21, 33:47, 17,18)]){
 	# maxs and mins across simulation and color palettes
 	mi=min(mins[[n]][mins[[n]]!=-Inf & mins[[n]]!=Inf], na.rm=T)
 	mx=max(maxs[[n]], na.rm=T)
@@ -1176,9 +1176,9 @@ for (suff in names(data_to_save)){
 }	
 # variables to plot depending whether the ref simulation has the virus or not
 if (startsWith(ref_sim, 'virus')){
-  var_to_plot=c(1:3, 5:12, 14, 21, 33,34, 37:46, 47)#, 38, 39)
+  var_to_plot=c(1:3, 5:12, 14, 21, 33,34, 37:46, 47, 17,18)#, 38, 39)
 } else{
-  var_to_plot=c(1:2, 5,9,10, 12, 14, 21, 33,34, 37:40, 42, 43, 45, 46, 47)#, 38, 39)
+  var_to_plot=c(1:2, 5,9,10, 12, 14, 21, 33,34, 37:40, 42, 43, 45, 46, 47, 17,18)#, 38, 39)
 }
 
 if (depth=='int'){
