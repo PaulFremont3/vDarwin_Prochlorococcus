@@ -10,8 +10,10 @@ You can either reproduce the whole study OR generate figures (see Tutorial)
 `git clone https://github.com/PaulFremont3/vDarwin_Prochlorococcus/`
 
 ### Tutorial
-The folder `run/` contains a tutorial on how to download and compile vDarwin.  
+The folder `run/` contains a tutorial on how to download and compile vDarwin.
+  
 The folder `Simulations/` contain 1 subfolder per simulation that contain parameterization files for each simulations of the study.  
+  
 The folder `Post_processing/` contains scripts to post process model outputs data and create figure panels from the manuscript (pdf outputs). Each folder contains its own tutorial.
 
 Subfolders `Simulations/` and `Post_processing/` contains a `README.md` that:
