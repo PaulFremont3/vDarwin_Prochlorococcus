@@ -11,6 +11,7 @@ openmpi/3.1.5/gcc/8.4.0/
 netcdf-fortran/4.5.2/gcc/8.4.0/openmpi/3.1.5/ 
 
 In each directory:
+- replace in `*data*` files containing *Your_path* by your own path to offline Darwin data. You can find the files that need to be edited by using `grep -ni "*Your_path" *`. Note that you can do that in one simulation folder and copy the edited files in all other directories.
 - run the simulation (on 96 cores, 3 to 6 hours): `sbatch run_3D_vDARWIN.sbatch *date*` => this runs the simulation and will store output data in the folder `diags_mds` and at the end of the simulation will place them in a new directory called `diags_mds_*date*/`
 - after the simulation is over, convert binary output files to `.nc` files: `sbatch run_process_last_year_to_nc.sbatch *date*`, .nc files are also stored in `diags_mds_*date*/`
 
