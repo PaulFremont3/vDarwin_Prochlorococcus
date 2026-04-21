@@ -4,7 +4,7 @@ Frémont *et al.*, *Viral impacts on plankton standing stocks, primary productiv
 
 Offline MITGCM input data files and default Darwin data input files will need to be acquired from the authors to run the simulations. 
   
-You can either reproduce the whole study OR generate figures (see Tutorial)
+You can either reproduce the whole study OR only regenerate figure panels by downloading the zenodo archive of model outputs (see Tutorial)
 
 ### Download
 `git clone https://github.com/PaulFremont3/vDarwin_Prochlorococcus/`
