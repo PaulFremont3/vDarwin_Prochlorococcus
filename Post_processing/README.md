@@ -1,6 +1,8 @@
-This folder contains all codes and data to post process model output data and reproduce article figure panels.
+This folder contains all codes and data to post process model output data and reproduce article figure panels. Offline MITGCM input data files and default Darwin data input files will need to be acquired from the authors to run the simulations.
 
 Dependencies: R version 4.3.2 or equivalent, R libraries: ncdf4, viridis, matlab, pals, RColorBrewer, RANN, maps, vioplot
+
+Note: the pipeline is written for running on a HPC system using sbatch (slurm). Alternatively, you can run the pipeline on your computer by running the Rscript commands found in the `.sbatch` files
 
 ## 1. Post process each simulation: script `3D_darwin_post_process.R`
 ### 1.1  Post process each simulation
