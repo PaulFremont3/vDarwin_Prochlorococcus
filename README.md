@@ -2,7 +2,7 @@ This repository contains all code and data needed to reproduce the figures and t
 
 Frémont *et al.*, *Viral impacts on plankton standing stocks, primary productivity, and biogeochemistry in a model ocean*.
 
-Offline MITGCM input data files and default Darwin data input files will need to be acquired from the authors to run the simulations.
+Offline MITGCM input data files and default Darwin data input files will need to be acquired from the authors to run the simulations. You can either reproduce the whole study OR generate figures (see Tutorial)
 
 ### Download
 `git clone https://github.com/PaulFremont3/vDarwin_Prochlorococcus/`
