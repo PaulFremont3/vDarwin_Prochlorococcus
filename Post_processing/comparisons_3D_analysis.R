@@ -2063,6 +2063,7 @@ for (i in 1:length(cols)){
 dev.off()
 }
 
+lt_lim=40
 # oligotrophic regions maps for the whole ocean and only tropical regions (40N to 40S)
 par(mar=c(5.1, 4.1, 4.1, 2.1))
 regs=c('all', 'trop')
