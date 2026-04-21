@@ -1,4 +1,6 @@
-This folder contains subfolders necessary to run all simulations of the manuscript, including model parameterization files, and the `.sbatch` file to launch the simulation on a HPC. Offline MITGCM input data files and default Darwin data input files will need to be acquired from the authors to run the simulations.
+This folder contains subfolders necessary to run all simulations of the manuscript, including model parameterization files, and the `.sbatch` file to launch the simulation on a HPC. Offline MITGCM input data files and default Darwin data input files will need to be acquired from the authors to run the simulations.  
+
+We do not include a precompiled executable, as binaries are often system-dependent and may not run reliably across platforms; instead, we provide the full source code and build instructions to ensure reproducibility (follow instructions in the `run/` directory prior to launch simulations).
 
 To follow the steps in this folder you must have downloaded and compiled vDarwin (folder `run/`)  
   
