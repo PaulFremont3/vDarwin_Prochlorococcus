@@ -1199,6 +1199,7 @@ n_suff=length(suffixes)
 suff_ref=suffixes[n_suff]
 print(suff_ref)
 suff_ref_bis=suffixes_bis[n_suff]
+#print(suff_ref)
 colos=colorRampPalette(c("blue", "white", "red"))(100)
 
 for (n in names_tracers[var_to_plot]){
@@ -1207,7 +1208,6 @@ for (n in names_tracers[var_to_plot]){
 	distrib=NULL
 	mxs_d=NULL
 	for (suff in suffixes[1:(n_suff-1)]){
-		# compute the wanted comparison based on sca and te type of variable + mins and maxs and percentile across al compared simualtions
 		if (!grepl('%', n) & !grepl('log', n)){
 			if (sca=='0'){
 				delta=(data_to_plot[[suff]][[n]]-data_to_plot[[suff_ref]][[n]])*100/data_to_plot[[suff_ref]][[n]]	
@@ -1226,37 +1226,43 @@ for (n in names_tracers[var_to_plot]){
 				}
 			}
 		}
+		#print(delta)
+		#print(data_to_plot[[suff_ref]][[n]])
 		if (length(as.vector( delta[delta!=-Inf & delta!=Inf & !is.na(delta)] )) >2){
 		  dens=density(as.vector( delta[delta!=-Inf & delta!=Inf & !is.na(delta)] ) )
 		  mxs_d=c(mxs_d, max(dens$y) ) 
 		}  
 		distrib=c(distrib, as.vector(delta[delta!=-Inf & delta!=Inf & !is.na(delta)]))
+			#print(delta)
 		mins=c(mins, min(delta[delta!=-Inf & delta!=Inf], na.rm=T))
 		maxs=c(maxs, max(delta[delta!=-Inf & delta!=Inf], na.rm=T))
 		if (n %in% tracers_to_save){
-                data_to_save[[suff]][[n]]=delta
-        }
+                	data_to_save[[suff]][[n]]=delta
+        	}
 	}
+
+	#print(n)
+	#print(mins)
+	#print(maxs)
 	mx_d=max(mxs_d)
-	# 99th percentile of the data
-	mx_ab= quantile(abs(distrib), 0.99)
+	mx_ab= quantile(abs(distrib), 0.99)#max(abs(c(mins[mins!=-Inf & mins!=Inf], maxs[maxs!=-Inf & maxs!=Inf])), na.rm=T)
 	print(n)
 	print(mx_ab)
 	mx_ab1=mx_ab
 
-	# clipping the range
 	if (sca=='log10' ){
 		lim_max=2
 	} else if (sca=='0'){
 		lim_max=200
-	} 
+	} #else{
+	#	lim_max=10^300
+	#}
 
 	if (mx_ab>lim_max){
 		mx_ab=lim_max
 	}	
 	zlim=c(-mx_ab, mx_ab)
 
-	# plotting the maps
 	for (suff in suffixes[1:(n_suff-1)]){
 		if (!grepl('%', n) & !grepl('log', n)){
 			if (sca=='0'){
@@ -1266,26 +1272,31 @@ for (n in names_tracers[var_to_plot]){
 			}
 		} else{
 			if (sca=='0'){
-                            delta=(data_to_plot[[suff]][[n]]-data_to_plot[[suff_ref]][[n]])
-            } else{
+                                delta=(data_to_plot[[suff]][[n]]-data_to_plot[[suff_ref]][[n]])
+                        } else{
 				if (!grepl('log', n)){
-                            delta=log10(data_to_plot[[suff]][[n]]/data_to_plot[[suff_ref]][[n]])
-                } else{
-                            delta=(data_to_plot[[suff]][[n]]-data_to_plot[[suff_ref]][[n]])
-                }
-            }
+                                        delta=log10(data_to_plot[[suff]][[n]]/data_to_plot[[suff_ref]][[n]])
+                                } else{
+                                        delta=(data_to_plot[[suff]][[n]]-data_to_plot[[suff_ref]][[n]])
+                                }
+                                #delta=log10(data_to_plot[[suff]][[n]]/data_to_plot[[suff_ref]][[n]])
+                        }
 		}
-		# clipping
+		#if (mx_ab==lim_max){
 		delta[delta>mx_ab]=mx_ab
 		delta[delta< -mx_ab]= -mx_ab
+		#}
 		old_par <- par(no.readonly = TRUE)
 		par(old_par)
+		#par(mar = c(5.1, 4.1, 4.1, 2.1))
 		template_map(min_lo, max_lo, min_lt, max_lt)
+                #maps::map("world2",, col = "black", lwd = 0.7,xlim = c(-20, 360), ylim = c(-85, 80), fill=T,interior = FALSE, main=n)
 
-        # overlay the raster
-        image(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], delta,add = TRUE, useRaster = TRUE, col = colos, zlim = zlim, main=paste('delta ', n, sep=''))
-        axis_map(min_lo, max_lo, min_lt, max_lt, step_lo, step_lt)
-        delta_cont=delta
+                # overlay the raster
+                #print(zlim)
+                image(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], delta,add = TRUE, useRaster = TRUE, col = colos, zlim = zlim, main=paste('delta ', n, sep=''))
+                axis_map(min_lo, max_lo, min_lt, max_lt, step_lo, step_lt)
+                delta_cont=delta
 		delta_cont[delta>0]=1
 		delta_cont[delta<0]=0
 
@@ -1296,33 +1307,31 @@ for (n in names_tracers[var_to_plot]){
 		
 		if (n %in% c('%Zmort', '%Omort', '%Vmort') & sca=='0'){
 			template_map(min_lo, max_lo, min_lt, max_lt)
-            image(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], delta,add = TRUE, useRaster = TRUE, col = colos, zlim = c(-26, 26), main=paste('delta ', n, sep=''))
-            axis_map(min_lo, max_lo, min_lt, max_lt, step_lo, step_lt)
-            contour(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], delta_cont, levels=c(0,1), add=T, labels=0, lwd=2)
+                	image(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], delta,add = TRUE, useRaster = TRUE, col = colos, zlim = c(-26, 26), main=paste('delta ', n, sep=''))
+                	axis_map(min_lo, max_lo, min_lt, max_lt, step_lo, step_lt)
+                	contour(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], delta_cont, levels=c(0,1), add=T, labels=0, lwd=2)
 		}
 
 		if (n=='Mort' & sca=='log10'){
-            template_map(min_lo, max_lo, min_lt, max_lt)
-            image(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], delta,add = TRUE, useRaster = TRUE, col = colos, zlim = c(-2, 2), main=paste('delta ', n, sep=''))
-            axis_map(min_lo, max_lo, min_lt, max_lt, step_lo, step_lt)
-            contour(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], delta_cont, levels=c(0,1), add=T, labels=0, lwd=2)
-        }
-
+			template_map(min_lo, max_lo, min_lt, max_lt)
+                        image(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], delta,add = TRUE, useRaster = TRUE, col = colos, zlim = c(-2, 2), main=paste('delta ', n, sep=''))
+                        axis_map(min_lo, max_lo, min_lt, max_lt, step_lo, step_lt)
+                        contour(lon[i1_lo:i2_lo], lat[i1_lt:i2_lt], delta_cont, levels=c(0,1), add=T, labels=0, lwd=2)
+		}
 		
 		if (region=='aloha'){
                         lon_g=202.5
                         lat_g=24.5
                         star(lon_g,lat_g, r=0.5, col="dodgerblue")
-        }
-        if( region=='gradients'){
+                }
+                if( region=='gradients'){
                         lon_g=202 #360-158 (lon of gradients)
                         lats_g=seq(23.5, 43.5, 1)
                         lon_g_ind=which.min(abs(lon-lon_g))
                         lats_g_ind=sapply(lats_g, function(x, lt){which.min(abs(x-lt))}, lt=lat)
                         points(rep(lon_g_ind,length(lats_g_ind)) ,lats_g , pch=19, type='l', lwd=3)
-        }
+                }
 
-		# PDF and CDF plots
 		if (sum(!is.na(as.vector(delta)))>10){
 		  d=density(delta[!is.na(delta)])
 		  y_max_buffered <- mx_d * 1.1
@@ -1335,9 +1344,10 @@ for (n in names_tracers[var_to_plot]){
 	  	  cdf=cumsum(d$y)/sum(d$y)
 	          points(d$x, cdf*y_max_buffered, type='l', lwd=9, col='#ff00ff')
 		  axis(4, at=c(0,y_max_buffered), labels=c(0,1))	
-		  })  
-		   if (n %in% c('%Zmort', '%Omort', '%Vmort') & sca=='0'){
-                    local({
+		  })
+
+		  if (n %in% c('%Zmort', '%Omort', '%Vmort') & sca=='0'){
+		    local({
                     old_par <- par(no.readonly = TRUE)
                     on.exit(par(old_par))
                     par(mar = c(5.1, 4.1, 17.5, 2.1))
@@ -1346,11 +1356,10 @@ for (n in names_tracers[var_to_plot]){
                     cdf=cumsum(d$y)/sum(d$y)
                     points(d$x, cdf*y_max_buffered, type='l', lwd=9, col='#ff00ff')
                     axis(4, at=c(0,y_max_buffered), labels=c(0,1))
-            })
-
-		    }
-			if (n=='Mort' & sca=='log10'){
-                    local({
+                    })  
+		  }
+		  if (n=='Mort' & sca=='log10'){
+		    local({
                     old_par <- par(no.readonly = TRUE)
                     on.exit(par(old_par))
                     par(mar = c(5.1, 4.1, 17.5, 2.1))
@@ -1359,20 +1368,22 @@ for (n in names_tracers[var_to_plot]){
                     cdf=cumsum(d$y)/sum(d$y)
                     points(d$x, cdf*y_max_buffered, type='l', lwd=9, col='#ff00ff')
                     axis(4, at=c(0,y_max_buffered), labels=c(0,1))
-            })
-			}
+                    })
+		  }
 
+
+		}
+		#par(old_par)
 
 	}
 
-	# legend
 	t1_min=-mx_ab
 	t1_max=mx_ab
 	# 2️⃣ Position of the legend
         legend_x <- 1       # x-position (right of map)
 
-    # 3️⃣ Draw the gradient as tiny rectangles
-    # Draw gradient as stacked rectangles
+         # 3️⃣ Draw the gradient as tiny rectangles
+        # Draw gradient as stacked rectangles
 	par(mar = c(5.1, 4.1, 4.1, 2.1))
         plot(0,0, xlim=c(0, 60), ylim=c(0, 105), col='white', yaxt='n', xaxt='n',
                  xlab='', ylab='', bty='n')
@@ -1384,10 +1395,13 @@ for (n in names_tracers[var_to_plot]){
                 ytop    = i+1,
                 col     = colos[i], border = NA)
         }
+        #if (n %in% c('%Inf', '%Vmort')){
+        #        text(x=legend_x+12, y=i+1, labels = 100)
+        #} else{
         text(x=legend_x+12, y=i+1, labels = signif(t1_max, 2))
+        #}
         text(x=legend_x,y=i+3, labels=paste('delta ', n, sep='') )
-
-	# in case of % change, plot % change on a log scale (negatives and positives)
+	
 	if (mx_ab1>200){
 		ceil_to_power_of_10 <- function(x) {
   			if (any(x <= 0)) stop("x must be positive")
@@ -1442,22 +1456,23 @@ for (n in names_tracers[var_to_plot]){
 		}
 
 		t1_min=-mx_ab1
-        t1_max=mx_ab1
+        	t1_max=mx_ab1
 		legend_x <- 1       # x-position (right of map)
 
          	# 3️⃣ Draw the gradient as tiny rectangles
         	# Draw gradient as stacked rectangles
-       	plot(0,0, xlim=c(0, 60), ylim=c(0, 105), col='white', yaxt='n', xaxt='n',xlab='', ylab='', bty='n')
+       		plot(0,0, xlim=c(0, 60), ylim=c(0, 105), col='white', yaxt='n', xaxt='n',xlab='', ylab='', bty='n')
 
-        text(x=legend_x+12, y=0, labels = signif(t1_min, 2))
-        for (i in 1:length(colos)){
+        	text(x=legend_x+12, y=0, labels = signif(t1_min, 2))
+        	for (i in 1:length(colos)){
                 	rect(xleft = legend_x, xright = legend_x + 10,
                 	ybottom = i,
                 	ytop    = i+1,
                 	col     = colos[i], border = NA)
-        }
+        	}
 		text(x=legend_x+12, y=i+1, labels = signif(t1_max, 2))
-        text(x=legend_x,y=i+3, labels=paste('delta ', n, sep='') )
+        	#}
+        	text(x=legend_x,y=i+3, labels=paste('delta ', n, sep='') )
 		text(x=legend_x+12, y=50, labels = 0)
 		mx_pow=ceil_to_power_of_10(mx_ab1)-1
 		dec_1=1
