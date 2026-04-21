@@ -2,6 +2,8 @@ This repository contains all code and data needed to reproduce the figures and t
 
 Frémont *et al.*, *Viral impacts on plankton standing stocks, primary productivity, and biogeochemistry in a model ocean*.
 
+Offline MITGCM input data files and default Darwin data input files will need to be acquired from the authors to run the simulations.
+
 ### Download
 `git clone https://github.com/PaulFremont3/vDarwin_Prochlorococcus/`
 
@@ -14,7 +16,7 @@ Subfolders `Simulations/` and `Post_processing/` contains a `README.md` that:
 2. Explain how to run the codes
 3. Explain where the figure panels are in the generated pdfs (for `Post_processing/`)
 
-The steps from folder `Post_processing/` can be performed independently (regenerate figures) except the `Post_processing/3D_darwin_post_process.R` step that post process raw model outputs in R. To run this step, you will have to run simulations (follow steps in `run/` then `Simulations/` folders). For following steps in  `Post_processing/`, required data to visualize model outputs are provided in the zenodo repository. The code from `Post_processing/` generates additional outputs beyond those presented in the paper.
+The steps from folder `Post_processing/` can be performed independently (regenerate figures) except the `Post_processing/3D_darwin_post_process.R` step that post process raw model outputs in R. To run this step, you will have to run simulations (follow steps in `run/` then `Simulations/` folders). For following steps in  `Post_processing/`, if you are not running the whole study, required model output data to visualize model outputs are provided in the zenodo repository and must be placed in the `Post_processing/` folder. The code from `Post_processing/` generates additional outputs beyond those presented in the paper.
 
 If you wish to run the whole study, the tutorial is written so that all the study is done in the folder `run/` (you will move folders `Simulations/` and `Post_processing/` inside this folder at some point, see `README.md` in `run/`).
 
