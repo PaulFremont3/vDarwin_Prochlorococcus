@@ -3,6 +3,7 @@ This folder contains all codes and data to post process model output data and re
 Dependencies: R version 4.3.2 or equivalent, R libraries: ncdf4, viridis, matlab, pals, RColorBrewer, RANN, maps, vioplot
 
 ## 1. Post process each simulation: script `3D_darwin_post_process.R`
+### 1.1  Post process each simulation
 This step is possible only if you ran simulations beforehand (follow steps in folders `run/` then `Simulations/`. Following steps can be done directly (`.rds` files are availble in the zenodo archive)  
 For each simulations, run the post processing that will save outputs as `.rds` files (convenient for R): 
 - change to the correct date of your simulation in each line in the file `run_post_process.sh`
@@ -13,7 +14,7 @@ For each simulations, run the post processing that will save outputs as `.rds` f
  
 OR  
   
-download .rds files from the Zenodo archive and place them in the `Post_processing` directory  
+### 1.2 download .rds files from the Zenodo archive and place them in the `Post_processing` directory  
 
 ## 2. Run global scale maps model comparisons: script `comparisons_3D_analysis.R`
 - run all comparisons: `./run_comparisons_save.sh` => this will run and save (as `.rds` files) all model comparisons necessary for figure generation (maximum run time should be around 2 hours). If plotting is necessary again, use `./run_comparisons_plot.sh` to only run plotting (20 minutes maximum run time and low memory)
