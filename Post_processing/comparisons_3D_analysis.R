@@ -2226,6 +2226,7 @@ if (ref_sim %in% c('no_virus_shunt', 'no_virus', 'no_virus_shunt_all') & reg=='t
 		shunts=c(0, 25, 50,60,75,90,100)
 	}
 	n_shunt=length(shunts)
+	surfaces1=surfaces*100/tot_surf_ocean
 	plot(shunts,surfaces1[1,1:n_shunt], ylim=c(0, 1.05*max(surfaces1)), col="chocolate", cex=3, pch=19)
 	lines(shunts, surfaces1[1,1:n_shunt], col="chocolate", lwd=2)
 	points(shunts, surfaces1[2,1:n_shunt], col="sandybrown", cex=3, pch=19)
@@ -2244,8 +2245,6 @@ if (ref_sim %in% c('no_virus_shunt', 'no_virus', 'no_virus_shunt_all') & reg=='t
 
     abline(h=surfaces1[1,n_shunt+1], col="chocolate", lty=1, lwd=3)
     abline(h=surfaces1[2,n_shunt+1], col="sandybrown", lty=1, lwd=3)
-	abline(h=surfaces1[1,length(shunts)+2], col="chocolate", lty=2, lwd=3)
-    abline(h=surfaces1[2,length(shunts)+2], col="sandybrown", lty=2, lwd=3)
 	
 	axis(side = 4, at = pct_ticks, labels = format(area_ticks, big.mark = ","))
 	mtext("Area (km²)", side = 4, line = 3)
